@@ -1,0 +1,138 @@
+(defun my/org-babel-tangle-config()
+  (when (string-equal
+	 (buffer-file-name)
+	 (expand-file-name "init.org" user-emacs-directory)
+	 )
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+
+(add-hook
+ 'org-mode-hook
+ (lambda ()
+   (add-hook 'after-save-hook 'my/org-babel-tangle-config)
+   ))
+
+(defvar bootstrap-version)
+    (let ((bootstrap-file
+           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+          (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+        (with-current-buffer
+            (url-retrieve-synchronously
+             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+             'silent 'inhibit-cookies)
+          (goto-char (point-max))
+          (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage))
+
+(straight-use-package 'use-package)
+
+(setq inhibit-startup-message t)
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(set-fringe-mode 10)
+(toggle-frame-maximized)
+(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+(display-battery-mode t)
+
+(straight-use-package 'doom-themes)
+(load-theme 'doom-dracula t)
+
+(straight-use-package 'doom-modeline)
+(doom-modeline-mode 1)
+
+(use-package cnfonts
+  :straight t
+  :custom
+  (cnfonts-personal-fontnames
+   '(("MesloLGS NF")
+     ()
+     ()))
+  :config
+  (cnfonts-enable)
+  )
+
+(straight-use-package 'ivy)
+(straight-use-package 'counsel)
+(ivy-mode)
+(setq ivy-use-virtual-buffers t)
+(setq enable-recursive-minibuffers t)
+(setq search-default-mode #'char-fold-to-regexp)
+(global-set-key "\C-s" 'swiper)
+(global-set-key (kbd "C-c C-r") 'ivy-resume)
+(global-set-key (kbd "<f6>") 'ivy-resume)
+(global-set-key (kbd "M-x") 'counsel-M-x)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "<f1> f") 'counsel-describe-function)
+(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
+(global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
+(global-set-key (kbd "<f1> l") 'counsel-find-library)
+(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
+(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "C-c g") 'counsel-git)
+(global-set-key (kbd "C-c j") 'counsel-git-grep)
+(global-set-key (kbd "C-c k") 'counsel-ag)
+(global-set-key (kbd "C-x l") 'counsel-locate)
+(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
+(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+(straight-use-package 'ivy-prescient)
+
+(straight-use-package 'ivy-rich)
+(ivy-rich-mode 1)
+
+(global-set-key (kbd "<home>") 'beginning-of-line)
+(global-set-key (kbd "<end>") 'end-of-line)
+
+(with-eval-after-load 'org
+  (require 'org-tempo)
+  (setq org-startup-indented t)
+  (setq org-edit-src-content-indentation 0)
+  (setq org-support-shift-select t)
+  (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
+  (toggle-word-wrap 1)
+  (toggle-truncate-lines 1)
+)
+
+(use-package org-roam
+  :straight t
+  :init
+  (setq org-roam-v2-ack t)
+  :custom
+  (org-roam-directory "~/SynologyDrive/zettelkasten/")
+  (org-roam-completion-everywhere t)
+  (org-roam-db-update-on-save t)
+  (org-roam-dailies-capture-templates
+   '(("d" "default" entry "* %U %?" :if-new
+  (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
+  :config
+  (add-to-list 'display-buffer-alist
+               '("\\*org-roam\\*"
+		 (display-buffer-in-side-window)
+		 (side . right)
+		 (slot . 0)
+		 (window-width . 0.33)
+		 (window-parameters . ((no-other-window . t)
+                                       (no-delete-other-windows . t)))))
+  (org-roam-setup)
+  )
+
+(use-package which-key
+  :straight t
+  :diminish
+  :config
+  (which-key-mode)
+  (setq which-key-idle-delay 0)
+  )
+
+(use-package magit
+  :straight t
+  )

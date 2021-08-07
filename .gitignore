@@ -1,0 +1,10 @@
+*~
+org-roam.db
+straight/
+eshell/
+eln-cache/
+cnfonts/
+bookmarks
+.org-id-locations
+elpa/
+recentf
