@@ -46,23 +46,14 @@
   :straight t
   :custom
   (cnfonts-personal-fontnames
-   '(("MesloLGS NF")
+   '(("MesloLGS NF" "JetBrains Mono")
      ()
      ()))
   :config
   (cnfonts-enable)
   )
 
-(straight-use-package 'ivy)
 (straight-use-package 'counsel)
-(ivy-mode)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(setq search-default-mode #'char-fold-to-regexp)
-(global-set-key "\C-s" 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
-(global-set-key (kbd "<f6>") 'ivy-resume)
-(global-set-key (kbd "M-x") 'counsel-M-x)
 (global-set-key (kbd "C-x C-f") 'counsel-find-file)
 (global-set-key (kbd "<f1> f") 'counsel-describe-function)
 (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
@@ -70,20 +61,35 @@
 (global-set-key (kbd "<f1> l") 'counsel-find-library)
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-(global-set-key (kbd "C-c g") 'counsel-git)
-(global-set-key (kbd "C-c j") 'counsel-git-grep)
-(global-set-key (kbd "C-c k") 'counsel-ag)
-(global-set-key (kbd "C-x l") 'counsel-locate)
-(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 
-(straight-use-package 'ivy-prescient)
+(straight-use-package 'selectrum)
+(selectrum-mode +1)
 
-(straight-use-package 'ivy-rich)
-(ivy-rich-mode 1)
+(straight-use-package 'prescient)
+(straight-use-package 'selectrum-prescient)
+(selectrum-prescient-mode +1)
+(prescient-persist-mode +1)
+
+(use-package consult
+  :straight t)
+
+(use-package marginalia
+  :straight t
+  :init
+  (marginalia-mode)
+  )
 
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
+
+(savehist-mode 1)
+(desktop-save-mode 1)
+(recentf-mode 1)
+
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -93,16 +99,37 @@
   (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
   (toggle-word-wrap 1)
   (toggle-truncate-lines 1)
-)
+
+  (defun insert-zero-width-space () (interactive) (insert-char #x200b))
+  (defun my-latex-filter-zws (text backend info)
+    (when (org-export-derived-backend-p backend 'latex)
+      (replace-regexp-in-string "\x200B" "{}" text)))
+  (global-set-key (kbd "C-*") 'insert-zero-width-space)
+
+  (setq org-emphasis-alist
+        '(("*" (bold :foreground "magenta"))
+          ("/" (italic :foreground "cyan"))
+          ("_" underline)
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" (:strike-through t)))
+        )
+  (setq org-hide-emphasis-markers t)
+  (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
+  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  (org-element-update-syntax)
+  
+  )
 
 (use-package org-roam
   :straight t
   :init
   (setq org-roam-v2-ack t)
+  (setq org-roam-db-update-on-save t)
+  (org-roam-setup)
   :custom
   (org-roam-directory "~/SynologyDrive/zettelkasten/")
   (org-roam-completion-everywhere t)
-  (org-roam-db-update-on-save t)
   (org-roam-dailies-capture-templates
    '(("d" "default" entry "* %U %?" :if-new
   (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
@@ -122,7 +149,22 @@
 		 (window-width . 0.33)
 		 (window-parameters . ((no-other-window . t)
                                        (no-delete-other-windows . t)))))
-  (org-roam-setup)
+  )
+
+(use-package org-roam-ui
+  :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t)
+  )
+
+(use-package org-superstar
+  :straight t
+  :config
+  (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
   )
 
 (use-package which-key
@@ -133,6 +175,19 @@
   (setq which-key-idle-delay 0)
   )
 
+(use-package company
+  :straight t
+  :config
+  )
+
 (use-package magit
+  :straight t
+  )
+
+(straight-use-package 'exec-path-from-shell)
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+
+(use-package vterm
   :straight t
   )

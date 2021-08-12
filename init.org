@@ -72,25 +72,17 @@ Chinese Fonts
   :straight t
   :custom
   (cnfonts-personal-fontnames
-   '(("MesloLGS NF")
+   '(("MesloLGS NF" "JetBrains Mono")
      ()
      ()))
   :config
   (cnfonts-enable)
   )
 #+end_src
-* ivy
+
+counsel
 #+begin_src elisp
-(straight-use-package 'ivy)
 (straight-use-package 'counsel)
-(ivy-mode)
-(setq ivy-use-virtual-buffers t)
-(setq enable-recursive-minibuffers t)
-(setq search-default-mode #'char-fold-to-regexp)
-(global-set-key "\C-s" 'swiper)
-(global-set-key (kbd "C-c C-r") 'ivy-resume)
-(global-set-key (kbd "<f6>") 'ivy-resume)
-(global-set-key (kbd "M-x") 'counsel-M-x)
 (global-set-key (kbd "C-x C-f") 'counsel-find-file)
 (global-set-key (kbd "<f1> f") 'counsel-describe-function)
 (global-set-key (kbd "<f1> v") 'counsel-describe-variable)
@@ -98,23 +90,37 @@ Chinese Fonts
 (global-set-key (kbd "<f1> l") 'counsel-find-library)
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-(global-set-key (kbd "C-c g") 'counsel-git)
-(global-set-key (kbd "C-c j") 'counsel-git-grep)
-(global-set-key (kbd "C-c k") 'counsel-ag)
-(global-set-key (kbd "C-x l") 'counsel-locate)
-(global-set-key (kbd "C-S-o") 'counsel-rhythmbox)
-(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 #+end_src
 
-** ivy-prescient
+* completion
+
+selectrum
 #+begin_src elisp
-(straight-use-package 'ivy-prescient)
+(straight-use-package 'selectrum)
+(selectrum-mode +1)
 #+end_src
 
-** ivy-rich
+prescient
 #+begin_src elisp
-(straight-use-package 'ivy-rich)
-(ivy-rich-mode 1)
+(straight-use-package 'prescient)
+(straight-use-package 'selectrum-prescient)
+(selectrum-prescient-mode +1)
+(prescient-persist-mode +1)
+#+end_src
+
+consult
+#+begin_src elisp
+(use-package consult
+  :straight t)
+#+end_src
+
+marginalia
+#+begin_src elisp
+(use-package marginalia
+  :straight t
+  :init
+  (marginalia-mode)
+  )
 #+end_src
 
 * keyboard shortcuts
@@ -122,6 +128,21 @@ Change the behavior of =<home>= and =<end>=.
 #+begin_src elisp
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
+#+end_src
+
+* save history
+#+begin_src elisp
+(savehist-mode 1)
+(desktop-save-mode 1)
+(recentf-mode 1)
+#+end_src
+
+* backup files
+#+begin_src elisp
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
 #+end_src
 
 * org
@@ -134,7 +155,27 @@ Change the behavior of =<home>= and =<end>=.
   (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
   (toggle-word-wrap 1)
   (toggle-truncate-lines 1)
-)
+
+  (defun insert-zero-width-space () (interactive) (insert-char #x200b))
+  (defun my-latex-filter-zws (text backend info)
+    (when (org-export-derived-backend-p backend 'latex)
+      (replace-regexp-in-string "\x200B" "{}" text)))
+  (global-set-key (kbd "C-*") 'insert-zero-width-space)
+
+  (setq org-emphasis-alist
+        '(("*" (bold :foreground "magenta"))
+          ("/" (italic :foreground "cyan"))
+          ("_" underline)
+          ("=" org-verbatim verbatim)
+          ("~" org-code verbatim)
+          ("+" (:strike-through t)))
+        )
+  (setq org-hide-emphasis-markers t)
+  (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
+  (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
+  (org-element-update-syntax)
+  
+  )
 #+end_src
 
 ** org-roam
@@ -143,10 +184,11 @@ Change the behavior of =<home>= and =<end>=.
   :straight t
   :init
   (setq org-roam-v2-ack t)
+  (setq org-roam-db-update-on-save t)
+  (org-roam-setup)
   :custom
   (org-roam-directory "~/SynologyDrive/zettelkasten/")
   (org-roam-completion-everywhere t)
-  (org-roam-db-update-on-save t)
   (org-roam-dailies-capture-templates
    '(("d" "default" entry "* %U %?" :if-new
   (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
@@ -166,10 +208,30 @@ Change the behavior of =<home>= and =<end>=.
 		 (window-width . 0.33)
 		 (window-parameters . ((no-other-window . t)
                                        (no-delete-other-windows . t)))))
-  (org-roam-setup)
   )
 #+end_src
 
+** org-roam-ui
+#+begin_src elisp
+(use-package org-roam-ui
+  :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :after org-roam
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t)
+  )
+#+end_src
+
+** org-superstar
+#+begin_src elisp
+(use-package org-superstar
+  :straight t
+  :config
+  (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
+  )
+#+end_src
 * which-key
 #+begin_src elisp
 (use-package which-key
@@ -181,9 +243,32 @@ Change the behavior of =<home>= and =<end>=.
   )
 #+end_src
 
+* company
+#+begin_src elisp
+(use-package company
+  :straight t
+  :config
+  )
+#+end_src
 * magit
 #+begin_src elisp
 (use-package magit
   :straight t
   )
 #+end_src
+
+* exec-path-from-shell
+#+begin_src elisp
+(straight-use-package 'exec-path-from-shell)
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
+#+end_src
+
+* vterm
+#+begin_src elisp
+(use-package vterm
+  :straight t
+  )
+#+end_src
+
+

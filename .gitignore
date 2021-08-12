@@ -8,3 +8,7 @@ bookmarks
 .org-id-locations
 elpa/
 recentf
+/.emacs.desktop*
+/history
+/transient/
+/var/
