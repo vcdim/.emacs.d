@@ -12,3 +12,9 @@ recentf
 /history
 /transient/
 /var/
+/.mc-lists.el
+/_minted-init/
+/*.pdf
+/*.tex
+/request/
+/tramp

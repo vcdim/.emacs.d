@@ -6,11 +6,11 @@
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
 
-(add-hook
- 'org-mode-hook
+(add-hook 'org-mode-hook
  (lambda ()
    (add-hook 'after-save-hook 'my/org-babel-tangle-config)
-   ))
+   )
+ )
 
 (defvar bootstrap-version)
     (let ((bootstrap-file
@@ -61,6 +61,7 @@
 (global-set-key (kbd "<f1> l") 'counsel-find-library)
 (global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
 (global-set-key (kbd "<f2> u") 'counsel-unicode-char)
+(global-set-key (kbd "M-s-j") 'ivy-immediate-done)
 
 (straight-use-package 'selectrum)
 (selectrum-mode +1)
@@ -79,8 +80,47 @@
   (marginalia-mode)
   )
 
+(use-package company
+  :straight t
+  :config
+  (setq company-tooltip-limit 20)
+  (setq company-show-numbers t)
+  (setq company-idle-delay 0)
+  (setq company-echo-delay 0)
+  )
+
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
+
+(use-package which-key
+  :straight t
+  :diminish
+  :config
+  (which-key-mode)
+  (setq which-key-idle-delay 0)
+  )
+
+(use-package multiple-cursors
+  :straight t
+  )
+
+(use-package keycast
+  :straight t)
+(with-eval-after-load 'keycast
+  (define-minor-mode keycast-mode
+    "Show current command and its key binding in the mode line."
+    :global t
+    (if keycast-mode
+        (add-hook 'pre-command-hook 'keycast--update t)
+      (remove-hook 'pre-command-hook 'keycast--update)))
+
+  (add-to-list 'global-mode-string '("" mode-line-keycast)))
+
+(setq user-full-name "Qun Gu")
+
+(straight-use-package 'exec-path-from-shell)
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize))
 
 (savehist-mode 1)
 (desktop-save-mode 1)
@@ -91,12 +131,29 @@
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
+(when (string= system-type "darwin")
+  (setq dired-use-ls-dired t
+        insert-directory-program "/usr/local/bin/gls"
+        dired-listing-switches "-aBhl --group-directories-first"))
+
+(straight-use-package 'tree-sitter)
+(straight-use-package 'tree-sitter-langs)
+
+(use-package markdown-mode
+  :straight t
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
 (with-eval-after-load 'org
   (require 'org-tempo)
   (setq org-startup-indented t)
   (setq org-edit-src-content-indentation 0)
   (setq org-support-shift-select t)
   (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
+  (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (toggle-word-wrap 1)
   (toggle-truncate-lines 1)
 
@@ -105,6 +162,7 @@
     (when (org-export-derived-backend-p backend 'latex)
       (replace-regexp-in-string "\x200B" "{}" text)))
   (global-set-key (kbd "C-*") 'insert-zero-width-space)
+  (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.7))
 
   (setq org-emphasis-alist
         '(("*" (bold :foreground "magenta"))
@@ -118,11 +176,47 @@
   (setq org-emphasis-regexp-components '("-[:multibyte:][:space:]('\"{" "-[:multibyte:][:space:].,:!?;'\")}\\[" "[:space:]" "." 1))
   (org-set-emph-re 'org-emphasis-regexp-components org-emphasis-regexp-components)
   (org-element-update-syntax)
-  
+
+  (setq org-latex-listings 'minted)
+  (setq org-latex-minted-options '(("breaklines" "true")
+                                   ("breakanywhere" "true")
+				   ))
+  (setq org-highlight-latex-and-related '(latex script entities))
+  (setq org-latex-pdf-process
+      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/zettelkasten/daily/" "\\.org$"))
+
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "CMU Serif"))))
+   '(fixed-pitch ((t (:family "CMU Typewriter Text"))))
+   '(org-block ((t (:inherit fixed-pitch))))
+   '(bold ((t (:inherit variant-pitch))))
+   '(italic ((t (:inherit variant-pitch))))
+   '(org-code ((t (:inherit (shadow fixed-pitch)))))
+   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
+   '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
+   '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-property-value ((t (:inherit fixed-pitch))))
+   '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
+   '(org-table ((t (:inherit fixed-pitch))))
+   '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold))))
+   '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
+   '(org-todo ((t (:inherit (fixed-pitch)))))
+   '(org-done ((t (:inherit (fixed-pitch)))))
+   '(org-drawer ((t (:inherit (fixed-pitch))))) 
+   '(org-formula ((t (:inherit (fixed-pitch)))))
+   '(org-macro ((t (:inherit (fixed-pitch))))))
+
+  ;; zotero
+  (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   )
 
 (use-package org-roam
   :straight t
+  :defer t
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
@@ -151,8 +245,16 @@
                                        (no-delete-other-windows . t)))))
   )
 
+(use-package org-roam-bibtex
+  :straight t
+  :defer t
+  :after org-roam
+  :config
+  (require 'org-ref))
+
 (use-package org-roam-ui
   :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+  :defer t
   :after org-roam
   :config
   (setq org-roam-ui-sync-theme t
@@ -161,33 +263,68 @@
         org-roam-ui-open-on-start t)
   )
 
+(use-package org-ref
+  :straight t
+  )
+
+(use-package org-super-agenda
+  :straight t)
+
 (use-package org-superstar
   :straight t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
   )
 
-(use-package which-key
+(use-package org-pomodoro
+  :straight t)
+
+(with-eval-after-load 'ox-latex
+  (add-to-list 'org-latex-classes '("ctexart" "\\documentclass[11pt]{ctexart}"
+				  ("\\section{%s}" . "\\section*{%s}")
+				  ("\\subsection{%s}" . "\\subsection*{%s}")
+				  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+				  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+				  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (add-to-list 'org-latex-packages-alist '("" "minted"))
+)
+
+(use-package ox-hugo
   :straight t
-  :diminish
   :config
-  (which-key-mode)
-  (setq which-key-idle-delay 0)
+  (setq org-hugo-base-dir "~/SynologyDrive/hugo/")
   )
 
-(use-package company
+(use-package auctex
   :straight t
-  :config
+  :defer t
+  )
+
+(use-package cdlatex
+  :straight t
+  :defer t
+  )
+
+(use-package zotxt
+  :straight t
+  :defer t  
   )
 
 (use-package magit
   :straight t
   )
 
-(straight-use-package 'exec-path-from-shell)
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
-
 (use-package vterm
   :straight t
+  )
+
+(use-package multi-vterm
+  :straight t
+  )
+
+(use-package benchmark-init
+  :straight t
+  :config
+  ;; To disable collection of benchmark data after init is done.
+  (add-hook 'after-init-hook 'benchmark-init/deactivate)
   )
