@@ -306,9 +306,9 @@ Change the behavior of =<home>= and =<end>=.
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
-  (org-roam-setup)
+  (setq org-roam-directory "~/SynologyDrive/zettelkasten/")
+  (setq org-id-extra-files (directory-files-recursively org-roam-directory "\.org$"))
   :custom
-  (org-roam-directory "~/SynologyDrive/zettelkasten/")
   (org-roam-completion-everywhere t)
   (org-roam-dailies-capture-templates
    '(("d" "default" entry "* %U %?" :if-new
