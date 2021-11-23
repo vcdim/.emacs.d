@@ -1,16 +1,7 @@
 (defun my/org-babel-tangle-config()
-  (when (string-equal
-	 (buffer-file-name)
-	 (expand-file-name "init.org" user-emacs-directory)
-	 )
-    (let ((org-confirm-babel-evaluate nil))
-      (org-babel-tangle))))
-
-(add-hook 'org-mode-hook
- (lambda ()
-   (add-hook 'after-save-hook 'my/org-babel-tangle-config)
-   )
- )
+  (when (string-equal (buffer-file-name) (expand-file-name "init.org" user-emacs-directory))
+    (let ((org-confirm-babel-evaluate nil)) (org-babel-tangle))))
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 
 (defvar bootstrap-version)
     (let ((bootstrap-file
@@ -30,17 +21,37 @@
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
-(menu-bar-mode -1)
 (set-fringe-mode 10)
 (toggle-frame-maximized)
-(set-frame-parameter (selected-frame) 'alpha '(95 . 95))
+(defun toggle-transparency ()
+  (interactive)
+  (let ((alpha (frame-parameter nil 'alpha)))
+    (set-frame-parameter
+     nil 'alpha
+     (if (eql (cond ((numberp alpha) alpha)
+                    ((numberp (cdr alpha)) (cdr alpha))
+                    ;; Also handle undocumented (<active> <inactive>) form.
+                    ((numberp (cadr alpha)) (cadr alpha)))
+              100)
+         '(85 . 50) '(100 . 100)))))
 (display-battery-mode t)
 
-(straight-use-package 'doom-themes)
-(load-theme 'doom-dracula t)
+(use-package doom-themes
+  :straight t
+  :config
+  (load-theme 'doom-dracula t)
+  (setq doom-themes-enable-italic nil)
+  (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
+  (doom-themes-treemacs-config)
+  (doom-themes-org-config)
+  (doom-themes-visual-bell-config)
+  )
 
-(straight-use-package 'doom-modeline)
-(doom-modeline-mode 1)
+(use-package doom-modeline
+  :straight t
+  :config
+  (doom-modeline-mode 1)
+  )
 
 (use-package cnfonts
   :straight t
@@ -51,28 +62,51 @@
      ()))
   :config
   (cnfonts-enable)
+  (setq cnfonts-use-face-font-rescale t)
+  ;; 使得放缩时，中文能够跟着一起放缩
+  (setq face-font-rescale-alist '(("STSong" . 1.2) ("STXihei" . 1.2) ("STFangsong" . 1.2) ("STKaiti" . 1.2)))
   )
 
-(straight-use-package 'counsel)
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "<f1> f") 'counsel-describe-function)
-(global-set-key (kbd "<f1> v") 'counsel-describe-variable)
-(global-set-key (kbd "<f1> o") 'counsel-describe-symbol)
-(global-set-key (kbd "<f1> l") 'counsel-find-library)
-(global-set-key (kbd "<f2> i") 'counsel-info-lookup-symbol)
-(global-set-key (kbd "<f2> u") 'counsel-unicode-char)
-(global-set-key (kbd "M-s-j") 'ivy-immediate-done)
+(copy-face font-lock-constant-face 'calendar-iso-week-face)
+(set-face-attribute 'calendar-iso-week-face nil :height 0.7)
+(setq calendar-intermonth-text
+      '(propertize
+        (format "%2d" (car
+                 (calendar-iso-from-absolute
+                  (calendar-absolute-from-gregorian (list month day year)))))
+        'font-lock-face 'calendar-iso-week-face))
 
-(straight-use-package 'selectrum)
-(selectrum-mode +1)
+(use-package counsel
+  :straight t
+  :bind
+  ("C-x C-f" . counsel-find-file)
+  ("<f1> f" . counsel-describe-function)
+  ("<f1> v" . counsel-describe-variable)
+  ("<f1> o" . counsel-describe-symbol)
+  ("<f1> l" . counsel-find-library)
+  ("<f2> i" . counsel-info-lookup-symbol)
+  ("<f2> u" . counsel-unicode-char)
+  ("M-s-j" . ivy-immediate-done)
+  )
 
-(straight-use-package 'prescient)
-(straight-use-package 'selectrum-prescient)
+(use-package selectrum
+  :straight t
+  :config
+  (selectrum-mode +1)
+  )
+
+(use-package prescient
+  :straight t
+  )
+(use-package selectrum-prescient
+  :straight t
+  )
 (selectrum-prescient-mode +1)
 (prescient-persist-mode +1)
 
 (use-package consult
-  :straight t)
+  :straight t
+  )
 
 (use-package marginalia
   :straight t
@@ -89,8 +123,10 @@
   (setq company-echo-delay 0)
   )
 
-(global-set-key (kbd "<home>") 'beginning-of-line)
-(global-set-key (kbd "<end>") 'end-of-line)
+(use-package company-auctex
+  :straight t
+  :config
+  (company-auctex-init))
 
 (use-package which-key
   :straight t
@@ -102,6 +138,10 @@
 
 (use-package multiple-cursors
   :straight t
+  :bind
+  ("s-d" . mc/mark-next-like-this)
+  ("M-s-<down>" . mc/mark-next-lines)
+  ("M-s-<up>" . mc/mark-previous-lines)
   )
 
 (use-package keycast
@@ -115,6 +155,158 @@
       (remove-hook 'pre-command-hook 'keycast--update)))
 
   (add-to-list 'global-mode-string '("" mode-line-keycast)))
+
+(setq TeX-engine 'xetex)
+(setq TeX-command-extra-options "-shell-escape")
+
+(use-package auctex
+  :straight t
+  :defer t
+  )
+(add-hook 'LaTeX-mode-hook 
+          (lambda()
+            (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape %t" TeX-run-TeX nil t))
+            (setq TeX-command-default "XeLaTeX")
+            (setq TeX-save-query nil)
+            (setq TeX-show-compilation t)))
+
+(use-package cdlatex
+  :straight t
+  :defer t
+  )
+
+(use-package zotxt
+  :straight t
+  :defer t  
+  )
+
+(use-package treemacs
+  :straight t
+  :ensure t
+  :defer t
+  :init
+  (with-eval-after-load 'winum
+    (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
+  :config
+  (progn
+    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+          treemacs-deferred-git-apply-delay        0.5
+          treemacs-directory-name-transformer      #'identity
+          treemacs-display-in-side-window          t
+          treemacs-eldoc-display                   t
+          treemacs-file-event-delay                5000
+          treemacs-file-extension-regex            treemacs-last-period-regex-value
+          treemacs-file-follow-delay               0.2
+          treemacs-file-name-transformer           #'identity
+          treemacs-follow-after-init               t
+          treemacs-expand-after-init               t
+          treemacs-git-command-pipe                ""
+          treemacs-goto-tag-strategy               'refetch-index
+          treemacs-indentation                     2
+          treemacs-indentation-string              " "
+          treemacs-is-never-other-window           nil
+          treemacs-max-git-entries                 5000
+          treemacs-missing-project-action          'ask
+          treemacs-move-forward-on-expand          nil
+          treemacs-no-png-images                   nil
+          treemacs-no-delete-other-windows         t
+          treemacs-project-follow-cleanup          nil
+          treemacs-persist-file                    (expand-file-name ".cache/treemacs-persist" user-emacs-directory)
+          treemacs-position                        'left
+          treemacs-read-string-input               'from-child-frame
+          treemacs-recenter-distance               0.1
+          treemacs-recenter-after-file-follow      nil
+          treemacs-recenter-after-tag-follow       nil
+          treemacs-recenter-after-project-jump     'always
+          treemacs-recenter-after-project-expand   'on-distance
+          treemacs-litter-directories              '("/node_modules" "/.venv" "/.cask")
+          treemacs-show-cursor                     nil
+          treemacs-show-hidden-files               t
+          treemacs-silent-filewatch                nil
+          treemacs-silent-refresh                  nil
+          treemacs-sorting                         'alphabetic-asc
+          treemacs-select-when-already-in-treemacs 'move-back
+          treemacs-space-between-root-nodes        t
+          treemacs-tag-follow-cleanup              t
+          treemacs-tag-follow-delay                1.5
+          treemacs-text-scale                      nil
+          treemacs-user-mode-line-format           nil
+          treemacs-user-header-line-format         nil
+          treemacs-wide-toggle-width               70
+          treemacs-width                           35
+          treemacs-width-increment                 1
+          treemacs-width-is-initially-locked       t
+          treemacs-workspace-switch-cleanup        nil)
+
+    ;; The default width and height of the icons is 22 pixels. If you are
+    ;; using a Hi-DPI display, uncomment this to double the icon size.
+    ;;(treemacs-resize-icons 44)
+
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (treemacs-fringe-indicator-mode 'always)
+
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null treemacs-python-executable)))
+      (`(t . t)
+       (treemacs-git-mode 'deferred))
+      (`(t . _)
+       (treemacs-git-mode 'simple)))
+
+    (treemacs-hide-gitignored-files-mode nil))
+  :bind
+  (:map global-map
+        ("M-0"       . treemacs-select-window)
+        ("C-x t 1"   . treemacs-delete-other-windows)
+        ("C-x t t"   . treemacs)
+        ("C-x t B"   . treemacs-bookmark)
+        ("C-x t C-t" . treemacs-find-file)
+        ("C-x t M-t" . treemacs-find-tag)))
+
+(use-package treemacs-projectile
+  :straight t
+  :after (treemacs projectile)
+  :ensure t)
+
+(use-package treemacs-icons-dired
+  :straight t
+  :hook (dired-mode . treemacs-icons-dired-enable-once)
+  :ensure t)
+
+(use-package treemacs-magit
+  :straight t
+  :after (treemacs magit)
+  :ensure t)
+
+(use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
+  :straight t
+  :after (treemacs persp-mode) ;;or perspective vs. persp-mode
+  :ensure t
+  :config (treemacs-set-scope-type 'Perspectives))
+
+(use-package magit
+  :straight t
+  )
+
+(use-package vterm
+  :straight t
+  )
+
+(use-package multi-vterm
+  :straight t
+  )
+
+(use-package benchmark-init
+  :straight t
+  :config
+  ;; To disable collection of benchmark data after init is done.
+  (add-hook 'after-init-hook 'benchmark-init/deactivate)
+  )
+
+(global-set-key (kbd "C-c t") 'toggle-transparency)
+;; Change the behavior of =<home>= and =<end>=.
+(global-set-key (kbd "<home>") 'beginning-of-line)
+(global-set-key (kbd "<end>") 'end-of-line)
 
 (setq user-full-name "Qun Gu")
 
@@ -135,17 +327,6 @@
   (setq dired-use-ls-dired t
         insert-directory-program "/usr/local/bin/gls"
         dired-listing-switches "-aBhl --group-directories-first"))
-
-(straight-use-package 'tree-sitter)
-(straight-use-package 'tree-sitter-langs)
-
-(use-package markdown-mode
-  :straight t
-  :commands (markdown-mode gfm-mode)
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
 
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -188,28 +369,6 @@
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
   (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/zettelkasten/daily/" "\\.org$"))
 
-  (custom-theme-set-faces
-   'user
-   '(variable-pitch ((t (:family "CMU Serif"))))
-   '(fixed-pitch ((t (:family "CMU Typewriter Text"))))
-   '(org-block ((t (:inherit fixed-pitch))))
-   '(bold ((t (:inherit variant-pitch))))
-   '(italic ((t (:inherit variant-pitch))))
-   '(org-code ((t (:inherit (shadow fixed-pitch)))))
-   '(org-document-info-keyword ((t (:inherit (shadow fixed-pitch)))))
-   '(org-indent ((t (:inherit (org-hide fixed-pitch)))))
-   '(org-meta-line ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-property-value ((t (:inherit fixed-pitch))))
-   '(org-special-keyword ((t (:inherit (font-lock-comment-face fixed-pitch)))))
-   '(org-table ((t (:inherit fixed-pitch))))
-   '(org-tag ((t (:inherit (shadow fixed-pitch) :weight bold))))
-   '(org-verbatim ((t (:inherit (shadow fixed-pitch)))))
-   '(org-todo ((t (:inherit (fixed-pitch)))))
-   '(org-done ((t (:inherit (fixed-pitch)))))
-   '(org-drawer ((t (:inherit (fixed-pitch))))) 
-   '(org-formula ((t (:inherit (fixed-pitch)))))
-   '(org-macro ((t (:inherit (fixed-pitch))))))
-
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   )
@@ -220,7 +379,7 @@
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
-  (setq org-roam-directory "~/SynologyDrive/zettelkasten/")
+  (setq org-roam-directory "~/SynologyDrive/roam/")
   (setq org-id-extra-files (directory-files-recursively org-roam-directory "\.org$"))
   :custom
   (org-roam-completion-everywhere t)
@@ -245,86 +404,110 @@
                                        (no-delete-other-windows . t)))))
   )
 
-(use-package org-roam-bibtex
-  :straight t
-  :defer t
-  :after org-roam
-  :config
-  (require 'org-ref))
-
-(use-package org-roam-ui
-  :straight (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-  :defer t
-  :after org-roam
-  :config
-  (setq org-roam-ui-sync-theme t
-        org-roam-ui-follow t
-        org-roam-ui-update-on-save t
-        org-roam-ui-open-on-start t)
-  )
-
-(use-package org-ref
-  :straight t
-  )
-
-(use-package org-super-agenda
-  :straight t)
-
 (use-package org-superstar
   :straight t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
   )
 
-(use-package org-pomodoro
+(use-package org-super-agenda
   :straight t)
 
-(with-eval-after-load 'ox-latex
-  (add-to-list 'org-latex-classes '("ctexart" "\\documentclass[11pt]{ctexart}"
-				  ("\\section{%s}" . "\\section*{%s}")
-				  ("\\subsection{%s}" . "\\subsection*{%s}")
-				  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
-				  ("\\paragraph{%s}" . "\\paragraph*{%s}")
-				  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
-  (add-to-list 'org-latex-packages-alist '("" "minted"))
-)
+(defcustom TeX-buf-close-at-warnings-only t
+  "Close TeX buffer if there are only warnings."
+  :group 'TeX-output
+  :type 'boolean)
 
-(use-package ox-hugo
-  :straight t
-  :config
-  (setq org-hugo-base-dir "~/SynologyDrive/hugo/")
-  )
+(defun my-tex-close-TeX-buffer (_output)
+  "Close compilation buffer if there are no errors.
+Hook this function into `TeX-after-compilation-finished-functions'."
+  (let ((buf (TeX-active-buffer)))
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (when (progn (TeX-parse-all-errors)
+                     (or
+                      (and TeX-buf-close-at-warnings-only
+                           (null (cl-assoc 'error TeX-error-list)))
+                      (null TeX-error-list)))
+          (cl-loop for win in (window-list)
+                   if (eq (window-buffer win) (current-buffer))
+                   do (delete-window win)))))))
 
-(use-package auctex
-  :straight t
-  :defer t
-  )
+(add-hook 'TeX-after-compilation-finished-functions #'my-tex-close-TeX-buffer)
 
-(use-package cdlatex
-  :straight t
-  :defer t
-  )
+(defun LaTeX-indent-item ()
+  "Provide proper indentation for LaTeX \"itemize\",\"enumerate\", and
+\"description\" environments.
 
-(use-package zotxt
-  :straight t
-  :defer t  
-  )
+  \"\\item\" is indented `LaTeX-indent-level' spaces relative to
+  the the beginning of the environment.
 
-(use-package magit
-  :straight t
-  )
+  Continuation lines are indented either twice
+  `LaTeX-indent-level', or `LaTeX-indent-level-item-continuation'
+  if the latter is bound."
+  (save-match-data
+    (let* ((offset LaTeX-indent-level)
+           (contin (or (and (boundp 'LaTeX-indent-level-item-continuation)
+                            LaTeX-indent-level-item-continuation)
+                       (* 2 LaTeX-indent-level)))
+           (re-beg "\\\\begin{")
+           (re-end "\\\\end{")
+           (re-env "\\(itemize\\|\\enumerate\\|description\\)")
+           (indent (save-excursion
+                     (when (looking-at (concat re-beg re-env "}"))
+                       (end-of-line))
+                     (LaTeX-find-matching-begin)
+                     (current-column))))
+      (cond ((looking-at (concat re-beg re-env "}"))
+             (or (save-excursion
+                   (beginning-of-line)
+                   (ignore-errors
+                     (LaTeX-find-matching-begin)
+                     (+ (current-column)
+                        (if (looking-at (concat re-beg re-env "}"))
+                            contin
+                          offset))))
+                 indent))
+             ((looking-at (concat re-end re-env "}"))
+              indent)
+            ((looking-at "\\\\item")
+             (+ offset indent))
+            (t
+             (+ contin indent))))))
 
-(use-package vterm
-  :straight t
-  )
+(defcustom LaTeX-indent-level-item-continuation 4
+  "*Indentation of continuation lines for items in itemize-like
+environments."
+  :group 'LaTeX-indentation
+  :type 'integer)
 
-(use-package multi-vterm
-  :straight t
-  )
+(eval-after-load "latex"
+  '(setq LaTeX-indent-environment-list
+         (nconc '(("itemize" LaTeX-indent-item)
+                  ("enumerate" LaTeX-indent-item)
+                  ("description" LaTeX-indent-item))
+                LaTeX-indent-environment-list)))
 
-(use-package benchmark-init
-  :straight t
-  :config
-  ;; To disable collection of benchmark data after init is done.
-  (add-hook 'after-init-hook 'benchmark-init/deactivate)
-  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(LaTeX-indent-environment-list
+   '(("minted" current-indentation)
+     ("verbatim" current-indentation)
+     ("verbatim*" current-indentation)
+     ("filecontents" current-indentation)
+     ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular)
+     ("tabular*" LaTeX-indent-tabular)
+     ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular)
+     ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular)
+     ("displaymath")
+     ("equation")
+     ("equation*")
+     ("picture")
+     ("tabbing"))))
