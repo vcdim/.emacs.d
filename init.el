@@ -81,10 +81,30 @@
   :straight t
   )
 (custom-set-variables
- '(mini-frame-show-parameters
-   '((top . 10)
-     (width . 0.7)
-     (left . 0.5))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(LaTeX-indent-environment-list
+   '(("minted" current-indentation)
+     ("verbatim" current-indentation)
+     ("verbatim*" current-indentation)
+     ("filecontents" current-indentation)
+     ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular)
+     ("tabular*" LaTeX-indent-tabular)
+     ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular)
+     ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular)
+     ("displaymath")
+     ("equation")
+     ("equation*")
+     ("picture")
+     ("tabbing")))
+ '(mini-frame-show-parameters '((top . 10) (width . 0.7) (left . 0.5)))
+ '(safe-local-variable-values '((TeX-command-extra-options . "-shell-escape"))))
 
 (use-package counsel
   :straight t
@@ -171,24 +191,40 @@
   :config
   (global-diff-hl-mode))
 
+(use-package tree-sitter-langs
+  :straight t)
+
 (use-package tree-sitter
   :straight t
-  :if (executable-find "tree-sitter")
-  :hook (((rustic-mode
-           python-mode
-           go-mode
-           typescript-mode
-           css-mode) . tree-sitter-mode)
-         ((rustic-mode
-           python-mode
-           go-mode
-           typescript-mode
-           css-mode) . tree-sitter-hl-mode)))
+  :hook (((python-mode) . tree-sitter-mode)
+         ((python-mode) . tree-sitter-hl-mode)))
 
-(use-package tree-sitter-langs
+(use-package csv-mode
+  :straight t)
+
+(use-package ibuffer
   :straight t
-  :if (executable-find "tree-sitter")
-  :after tree-sitter)
+  :bind
+  ("C-x C-b" . ibuffer)
+  :config
+  (setq ibuffer-expert t) ; stop yes no prompt on delete
+
+  (setq ibuffer-saved-filter-groups
+	(quote (("DEFAULT"
+		 ("DIRED" (mode . dired-mode))
+		 ("ORG" (mode . org-mode))
+		 ("MAGIT" (name . "^magit"))
+		 ("PLANNER" (or
+			     (name . "^\\*Calendar\\*$")
+			     (name . "^\\*Org Agenda\\*")))
+		 ("EMACS" (or
+			   (name . "^\\*scratch\\*$")
+			   (name . "^\\*Messages\\*$")))))))
+
+  (add-hook 'ibuffer-mode-hook
+	    (lambda ()
+	      (ibuffer-switch-to-saved-filter-groups "DEFAULT")))
+  )
 
 (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
 (setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
@@ -527,26 +563,10 @@ environments."
                   ("description" LaTeX-indent-item))
                 LaTeX-indent-environment-list)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(LaTeX-indent-environment-list
-   '(("minted" current-indentation)
-     ("verbatim" current-indentation)
-     ("verbatim*" current-indentation)
-     ("filecontents" current-indentation)
-     ("filecontents*" current-indentation)
-     ("tabular" LaTeX-indent-tabular)
-     ("tabular*" LaTeX-indent-tabular)
-     ("align" LaTeX-indent-tabular)
-     ("align*" LaTeX-indent-tabular)
-     ("array" LaTeX-indent-tabular)
-     ("eqnarray" LaTeX-indent-tabular)
-     ("eqnarray*" LaTeX-indent-tabular)
-     ("displaymath")
-     ("equation")
-     ("equation*")
-     ("picture")
-     ("tabbing"))))
+ )

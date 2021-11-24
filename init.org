@@ -245,24 +245,46 @@ company-auctex
 
 ** tree-sitter
 #+begin_src elisp
+(use-package tree-sitter-langs
+  :straight t)
+
 (use-package tree-sitter
   :straight t
-  :if (executable-find "tree-sitter")
-  :hook (((rustic-mode
-           python-mode
-           go-mode
-           typescript-mode
-           css-mode) . tree-sitter-mode)
-         ((rustic-mode
-           python-mode
-           go-mode
-           typescript-mode
-           css-mode) . tree-sitter-hl-mode)))
+  :hook (((python-mode) . tree-sitter-mode)
+         ((python-mode) . tree-sitter-hl-mode)))
+#+end_src
 
-(use-package tree-sitter-langs
+** csv-mode
+#+begin_src elisp
+(use-package csv-mode
+  :straight t)
+#+end_src
+
+** ibuffer
+#+begin_src elisp
+(use-package ibuffer
   :straight t
-  :if (executable-find "tree-sitter")
-  :after tree-sitter)
+  :bind
+  ("C-x C-b" . ibuffer)
+  :config
+  (setq ibuffer-expert t) ; stop yes no prompt on delete
+
+  (setq ibuffer-saved-filter-groups
+	(quote (("DEFAULT"
+		 ("DIRED" (mode . dired-mode))
+		 ("ORG" (mode . org-mode))
+		 ("MAGIT" (name . "^magit"))
+		 ("PLANNER" (or
+			     (name . "^\\*Calendar\\*$")
+			     (name . "^\\*Org Agenda\\*")))
+		 ("EMACS" (or
+			   (name . "^\\*scratch\\*$")
+			   (name . "^\\*Messages\\*$")))))))
+
+  (add-hook 'ibuffer-mode-hook
+	    (lambda ()
+	      (ibuffer-switch-to-saved-filter-groups "DEFAULT")))
+  )
 #+end_src
 
 ** org-pomodoro
