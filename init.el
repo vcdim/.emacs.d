@@ -20,6 +20,7 @@
 
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
+(setq-default cursor-type 'bar)
 (tool-bar-mode -1)
 (set-fringe-mode 10)
 (toggle-frame-maximized)
@@ -75,6 +76,15 @@
                  (calendar-iso-from-absolute
                   (calendar-absolute-from-gregorian (list month day year)))))
         'font-lock-face 'calendar-iso-week-face))
+
+(use-package mini-frame
+  :straight t
+  )
+(custom-set-variables
+ '(mini-frame-show-parameters
+   '((top . 10)
+     (width . 0.7)
+     (left . 0.5))))
 
 (use-package counsel
   :straight t
@@ -155,6 +165,30 @@
       (remove-hook 'pre-command-hook 'keycast--update)))
 
   (add-to-list 'global-mode-string '("" mode-line-keycast)))
+
+(use-package diff-hl
+  :straight t
+  :config
+  (global-diff-hl-mode))
+
+(use-package tree-sitter
+  :straight t
+  :if (executable-find "tree-sitter")
+  :hook (((rustic-mode
+           python-mode
+           go-mode
+           typescript-mode
+           css-mode) . tree-sitter-mode)
+         ((rustic-mode
+           python-mode
+           go-mode
+           typescript-mode
+           css-mode) . tree-sitter-hl-mode)))
+
+(use-package tree-sitter-langs
+  :straight t
+  :if (executable-find "tree-sitter")
+  :after tree-sitter)
 
 (setq TeX-engine 'xetex)
 (setq TeX-command-extra-options "-shell-escape")

@@ -41,6 +41,7 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
 #+begin_src elisp
 (setq inhibit-startup-message t)
 (scroll-bar-mode -1)
+(setq-default cursor-type 'bar)
 (tool-bar-mode -1)
 (set-fringe-mode 10)
 (toggle-frame-maximized)
@@ -109,6 +110,18 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
                  (calendar-iso-from-absolute
                   (calendar-absolute-from-gregorian (list month day year)))))
         'font-lock-face 'calendar-iso-week-face))
+#+end_src
+
+** mini-frame
+#+begin_src elisp
+(use-package mini-frame
+  :straight t
+  )
+(custom-set-variables
+ '(mini-frame-show-parameters
+   '((top . 10)
+     (width . 0.7)
+     (left . 0.5))))
 #+end_src
 
 * Easy Access 便捷访问
@@ -220,6 +233,36 @@ company-auctex
       (remove-hook 'pre-command-hook 'keycast--update)))
 
   (add-to-list 'global-mode-string '("" mode-line-keycast)))
+#+end_src
+
+** diff-hl
+#+begin_src elisp
+(use-package diff-hl
+  :straight t
+  :config
+  (global-diff-hl-mode))
+#+end_src
+
+** tree-sitter
+#+begin_src elisp
+(use-package tree-sitter
+  :straight t
+  :if (executable-find "tree-sitter")
+  :hook (((rustic-mode
+           python-mode
+           go-mode
+           typescript-mode
+           css-mode) . tree-sitter-mode)
+         ((rustic-mode
+           python-mode
+           go-mode
+           typescript-mode
+           css-mode) . tree-sitter-hl-mode)))
+
+(use-package tree-sitter-langs
+  :straight t
+  :if (executable-find "tree-sitter")
+  :after tree-sitter)
 #+end_src
 
 ** latex
