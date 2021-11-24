@@ -265,6 +265,14 @@ company-auctex
   :after tree-sitter)
 #+end_src
 
+** org-pomodoro
+#+begin_src elisp
+(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
+(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
+#+end_src
+
 ** latex
 latex engine
 #+begin_src elisp

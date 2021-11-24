@@ -4,6 +4,8 @@ straight/
 eshell/
 eln-cache/
 cnfonts/
+.cache/
+site-lisp/
 bookmarks
 .org-id-locations
 elpa/
