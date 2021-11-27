@@ -23,7 +23,7 @@
 (setq-default cursor-type 'bar)
 (tool-bar-mode -1)
 (set-fringe-mode 10)
-(toggle-frame-maximized)
+; (toggle-frame-maximized)
 (defun toggle-transparency ()
   (interactive)
   (let ((alpha (frame-parameter nil 'alpha)))
@@ -81,30 +81,10 @@
   :straight t
   )
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(LaTeX-indent-environment-list
-   '(("minted" current-indentation)
-     ("verbatim" current-indentation)
-     ("verbatim*" current-indentation)
-     ("filecontents" current-indentation)
-     ("filecontents*" current-indentation)
-     ("tabular" LaTeX-indent-tabular)
-     ("tabular*" LaTeX-indent-tabular)
-     ("align" LaTeX-indent-tabular)
-     ("align*" LaTeX-indent-tabular)
-     ("array" LaTeX-indent-tabular)
-     ("eqnarray" LaTeX-indent-tabular)
-     ("eqnarray*" LaTeX-indent-tabular)
-     ("displaymath")
-     ("equation")
-     ("equation*")
-     ("picture")
-     ("tabbing")))
- '(mini-frame-show-parameters '((top . 10) (width . 0.7) (left . 0.5)))
- '(safe-local-variable-values '((TeX-command-extra-options . "-shell-escape"))))
+ '(mini-frame-show-parameters
+   '((top . 10)
+     (width . 0.7)
+     (left . 0.5))))
 
 (use-package counsel
   :straight t
@@ -383,6 +363,8 @@
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
 
+(global-unset-key (kbd "C-z"))
+
 (setq user-full-name "Qun Gu")
 
 (straight-use-package 'exec-path-from-shell)
@@ -442,10 +424,24 @@
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/zettelkasten/daily/" "\\.org$"))
 
-  ;; zotero
+    ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
+
+  ;; 配置任务文件
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/agenda/" "\\.org$"))
+
+  ;; 设置 TODO 状态可能性
+  (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
+
+  ;; 当关闭项目时自动记录时间
+  (setq org-log-done 'time)
+  ;; 习惯完成总是显示绿色
+  (setq org-habit-show-done-always-green t)
+  ;; 习惯图从第 80 格开始显示
+  (setq org-habit-graph-column 80)
+  ;; 显示每天习惯
+  (setq org-habit-show-all-today t)
   )
 
 (use-package org-roam
@@ -467,15 +463,17 @@
          ("C-c n i" . org-roam-node-insert)
          ("C-c n c" . org-roam-capture)
          ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
+         ("C-c n j" . org-roam-dailies-capture-today)
+         ("C-c n d" . org-roam-dailies-goto-today)
+         )
   :config
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
-		 (display-buffer-in-side-window)
-		 (side . right)
-		 (slot . 0)
-		 (window-width . 0.33)
-		 (window-parameters . ((no-other-window . t)
+                 (display-buffer-in-side-window)
+                 (side . right)
+                 (slot . 0)
+                 (window-width . 0.33)
+                 (window-parameters . ((no-other-window . t)
                                        (no-delete-other-windows . t)))))
   )
 
@@ -486,7 +484,31 @@
   )
 
 (use-package org-super-agenda
-  :straight t)
+  :straight t
+  :config
+  (let ((org-super-agenda-groups
+       '((:log t)  ; Automatically named "Log"
+         (:name "Schedule"
+                :time-grid t)
+         (:name "Today"
+                :scheduled today)
+         (:habit t)
+         (:name "Due today"
+                :deadline today)
+         (:name "Overdue"
+                :deadline past)
+         (:name "Due soon"
+                :deadline future)
+         (:name "Unimportant"
+                :todo ("SOMEDAY" "MAYBE" "CHECK" "TO-READ" "TO-WATCH")
+                :order 100)
+         (:name "Waiting..."
+                :todo "WAITING"
+                :order 98)
+         (:name "Scheduled earlier"
+                :scheduled past))))
+  (org-agenda-list))
+)
 
 (defcustom TeX-buf-close-at-warnings-only t
   "Close TeX buffer if there are only warnings."
@@ -563,10 +585,26 @@ environments."
                   ("description" LaTeX-indent-item))
                 LaTeX-indent-environment-list)))
 
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(LaTeX-indent-environment-list
+   '(("minted" current-indentation)
+     ("verbatim" current-indentation)
+     ("verbatim*" current-indentation)
+     ("filecontents" current-indentation)
+     ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular)
+     ("tabular*" LaTeX-indent-tabular)
+     ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular)
+     ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular)
+     ("displaymath")
+     ("equation")
+     ("equation*")
+     ("picture")
+     ("tabbing"))))
