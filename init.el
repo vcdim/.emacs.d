@@ -211,6 +211,21 @@
 (setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
 (setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
 
+(use-package org-download
+  :straight t
+  :after org
+  :custom
+  (org-download-method 'directory)
+  (org-download-image-dir "images")
+  (org-download-heading-lvl nil)
+  (org-download-timestamp "%Y%m%d-%H%M%S_")
+  (org-image-actual-width 300)
+  (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
+  :bind
+  ("C-M-y" . org-download-screenshot)
+  :config
+  (require 'org-download))
+
 (setq TeX-engine 'xetex)
 (setq TeX-command-extra-options "-shell-escape")
 
@@ -436,6 +451,8 @@
 
   ;; 当关闭项目时自动记录时间
   (setq org-log-done 'time)
+  ;; 显示已经完成的任务
+  (setq org-agenda-start-with-log-mode '(closed))
   ;; 习惯完成总是显示绿色
   (setq org-habit-show-done-always-green t)
   ;; 习惯图从第 80 格开始显示
