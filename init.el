@@ -4,26 +4,35 @@
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 
 (defvar bootstrap-version)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage))
+(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)) (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'use-package)
 
+;; 关闭启动消息
 (setq inhibit-startup-message t)
+;; 关闭滚动条
 (scroll-bar-mode -1)
-(setq-default cursor-type 'bar)
+;; 关闭工具栏
 (tool-bar-mode -1)
+;; 更改光标为竖线
+(setq-default cursor-type 'bar)
+;; 设置 10 个像素的左右页边距 （fringe）
 (set-fringe-mode 10)
-; (toggle-frame-maximized)
+;; 全局高亮当前行
+(global-hl-line-mode t)
+;; 启动时最大化窗口
+;; (toggle-frame-maximized)
+;; 显示电池电量
+(display-battery-mode t)
+;; 增加透明功能
 (defun toggle-transparency ()
   (interactive)
   (let ((alpha (frame-parameter nil 'alpha)))
@@ -35,7 +44,6 @@
                     ((numberp (cadr alpha)) (cadr alpha)))
               100)
          '(85 . 50) '(100 . 100)))))
-(display-battery-mode t)
 
 (use-package doom-themes
   :straight t
@@ -152,6 +160,7 @@
   ("s-d" . mc/mark-next-like-this)
   ("M-s-<down>" . mc/mark-next-lines)
   ("M-s-<up>" . mc/mark-previous-lines)
+  ("C-S-<mouse-1>" . mc/add-cursor-on-click)
   )
 
 (use-package keycast
@@ -206,50 +215,6 @@
 	      (ibuffer-switch-to-saved-filter-groups "DEFAULT")))
   )
 
-(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
-(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
-
-(use-package org-download
-  :straight t
-  :after org
-  :custom
-  (org-download-method 'directory)
-  (org-download-image-dir "images")
-  (org-download-heading-lvl nil)
-  (org-download-timestamp "%Y%m%d-%H%M%S_")
-  (org-image-actual-width 300)
-  (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
-  :bind
-  ("C-M-y" . org-download-screenshot)
-  :config
-  (require 'org-download))
-
-(setq TeX-engine 'xetex)
-(setq TeX-command-extra-options "-shell-escape")
-
-(use-package auctex
-  :straight t
-  :defer t
-  )
-(add-hook 'LaTeX-mode-hook 
-          (lambda()
-            (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape %t" TeX-run-TeX nil t))
-            (setq TeX-command-default "XeLaTeX")
-            (setq TeX-save-query nil)
-            (setq TeX-show-compilation t)))
-
-(use-package cdlatex
-  :straight t
-  :defer t
-  )
-
-(use-package zotxt
-  :straight t
-  :defer t  
-  )
-
 (use-package treemacs
   :straight t
   :ensure t
@@ -259,7 +224,7 @@
     (define-key winum-keymap (kbd "M-0") #'treemacs-select-window))
   :config
   (progn
-    (setq treemacs-collapse-dirs                   (if treemacs-python-executable 3 0)
+    (setq treemcs-collapse-dirs                   (if treemacs-python-executable 3 0)
           treemacs-deferred-git-apply-delay        0.5
           treemacs-directory-name-transformer      #'identity
           treemacs-display-in-side-window          t
@@ -310,7 +275,7 @@
 
     ;; The default width and height of the icons is 22 pixels. If you are
     ;; using a Hi-DPI display, uncomment this to double the icon size.
-    ;;(treemacs-resize-icons 44)
+    (treemacs-resize-icons 44)
 
     (treemacs-follow-mode t)
     (treemacs-filewatch-mode t)
@@ -373,11 +338,16 @@
   (add-hook 'after-init-hook 'benchmark-init/deactivate)
   )
 
+(use-package pocket-reader
+  :straight t
+  :ensure t
+  )
+
 (global-set-key (kbd "C-c t") 'toggle-transparency)
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
-
+;; 取消让 emacs 自动最小化的 C-z 
 (global-unset-key (kbd "C-z"))
 
 (setq user-full-name "Qun Gu")
@@ -399,6 +369,9 @@
   (setq dired-use-ls-dired t
         insert-directory-program "/usr/local/bin/gls"
         dired-listing-switches "-aBhl --group-directories-first"))
+
+;; 打开”选择删除模式” —— 选择一块区域之后，键入新的内容时会把已选区域内容删掉。
+(delete-selection-mode 1)
 
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -439,16 +412,12 @@
       '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
         "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-
-    ;; zotero
+  ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
-
   ;; 配置任务文件
   (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/agenda/" "\\.org$"))
-
   ;; 设置 TODO 状态可能性
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
-
   ;; 当关闭项目时自动记录时间
   (setq org-log-done 'time)
   ;; 显示已经完成的任务
@@ -460,6 +429,26 @@
   ;; 显示每天习惯
   (setq org-habit-show-all-today t)
   )
+
+(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
+(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
+
+(use-package org-download
+  :straight t
+  :after org
+  :custom
+  (org-download-method 'directory)
+  (org-download-image-dir "images")
+  (org-download-heading-lvl nil)
+  (org-download-timestamp "%Y%m%d-%H%M%S_")
+  (org-image-actual-width 300)
+  (org-download-screenshot-method "/usr/local/bin/pngpaste %s")
+  :bind
+  ("C-M-y" . org-download-screenshot)
+  :config
+  (require 'org-download))
 
 (use-package org-roam
   :straight t
@@ -526,6 +515,32 @@
                 :scheduled past))))
   (org-agenda-list))
 )
+
+;; LaTeX 默认引擎 xetex
+(setq TeX-engine 'xetex)
+
+(setq TeX-command-extra-options "-shell-escape")
+
+(use-package auctex
+  :straight t
+  :defer t
+  )
+(add-hook 'LaTeX-mode-hook 
+          (lambda()
+            (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape %t" TeX-run-TeX nil t))
+            (setq TeX-command-default "XeLaTeX")
+            (setq TeX-save-query nil)
+            (setq TeX-show-compilation t)))
+
+(use-package cdlatex
+  :straight t
+  :defer t
+  )
+
+(use-package zotxt
+  :straight t
+  :defer t  
+  )
 
 (defcustom TeX-buf-close-at-warnings-only t
   "Close TeX buffer if there are only warnings."
