@@ -140,11 +140,26 @@
   (setq company-idle-delay 0)
   (setq company-echo-delay 0)
   )
+(add-hook 'after-init-hook 'global-company-mode)
+
+(use-package sly
+  :straight t
+  )
+
+(use-package company-org-roam
+  :straight (:host github :repo "org-roam/company-org-roam")
+  :config
+  (push 'company-org-roam company-backends)
+)
 
 (use-package company-auctex
   :straight t
   :config
   (company-auctex-init))
+
+(use-package orderless
+  :straight t
+  :custom (completion-styles '(orderless)))
 
 (use-package which-key
   :straight t
@@ -428,6 +443,8 @@
   (setq org-habit-graph-column 80)
   ;; 显示每天习惯
   (setq org-habit-show-all-today t)
+  ;;
+  (setq org-agenda-archives-mode t)
   )
 
 (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
@@ -473,6 +490,7 @@
          ("C-c n d" . org-roam-dailies-goto-today)
          )
   :config
+  (org-roam-db-autosync-mode)
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
                  (display-buffer-in-side-window)
@@ -482,6 +500,20 @@
                  (window-parameters . ((no-other-window . t)
                                        (no-delete-other-windows . t)))))
   )
+
+(use-package org-roam-ui
+  :straight
+    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
+    :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+    :config
+    (setq org-roam-ui-sync-theme t
+          org-roam-ui-follow t
+          org-roam-ui-update-on-save t
+          org-roam-ui-open-on-start t))
 
 (use-package org-superstar
   :straight t
@@ -493,28 +525,36 @@
   :straight t
   :config
   (let ((org-super-agenda-groups
-       '((:log t)  ; Automatically named "Log"
-         (:name "Schedule"
-                :time-grid t)
-         (:name "Today"
-                :scheduled today)
-         (:habit t)
-         (:name "Due today"
-                :deadline today)
-         (:name "Overdue"
-                :deadline past)
-         (:name "Due soon"
-                :deadline future)
-         (:name "Unimportant"
-                :todo ("SOMEDAY" "MAYBE" "CHECK" "TO-READ" "TO-WATCH")
-                :order 100)
-         (:name "Waiting..."
-                :todo "WAITING"
-                :order 98)
-         (:name "Scheduled earlier"
-                :scheduled past))))
-  (org-agenda-list))
-)
+	 '((:log t)  ; Automatically named "Log"
+           (:name "Schedule"
+                  :time-grid t)
+           (:name "Today"
+                  :scheduled today)
+           (:habit t)
+           (:name "Due today"
+                  :deadline today)
+           (:name "Overdue"
+                  :deadline past)
+           (:name "Due soon"
+                  :deadline future)
+           (:name "Unimportant"
+                  :todo ("SOMEDAY" "MAYBE" "CHECK" "TO-READ" "TO-WATCH")
+                  :order 100)
+           (:name "Waiting..."
+                  :todo "WAITING"
+                  :order 98)
+           (:name "Scheduled earlier"
+                  :scheduled past))))
+    (org-agenda-list))
+  (add-to-list 'org-agenda-custom-commands
+               '("W" "Weekly review"
+		 agenda ""
+		 ((org-agenda-start-day "-14d")
+                  (org-agenda-span 14)
+                  (org-agenda-start-on-weekday 1)
+                  (org-agenda-start-with-log-mode '(closed))
+                  (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
+  )
 
 ;; LaTeX 默认引擎 xetex
 (setq TeX-engine 'xetex)
