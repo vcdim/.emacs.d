@@ -334,6 +334,8 @@
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
 
+(straight-use-package 'project)
+
 (use-package magit
   :straight t
   )
@@ -469,7 +471,6 @@
 
 (use-package org-roam
   :straight t
-  :defer t
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
