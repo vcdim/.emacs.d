@@ -477,8 +477,10 @@
   :config
   (require 'org-download))
 
-(use-package emacsql-sqlite3
-  :straight t)
+(with-system windows-nt
+  (use-package emacsql-sqlite3
+    :straight t)
+  )
 
 (use-package org-roam
   :straight t

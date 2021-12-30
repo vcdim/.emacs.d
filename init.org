@@ -616,8 +616,10 @@ company-auctex
 #+end_src
 ** emacs-sqlite3
 #+begin_src elisp
-(use-package emacsql-sqlite3
-  :straight t)
+(with-system windows-nt
+  (use-package emacsql-sqlite3
+    :straight t)
+  )
 #+end_src
 
 ** org-roam
