@@ -67,6 +67,9 @@
   (doom-themes-org-config)
   (doom-themes-visual-bell-config)
   )
+(use-package uwu-theme
+   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
+   :config (load-theme 'uwu t))
 
 (use-package doom-modeline
   :straight t

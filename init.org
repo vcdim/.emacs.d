@@ -95,6 +95,9 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
   (doom-themes-org-config)
   (doom-themes-visual-bell-config)
   )
+(use-package uwu-theme
+   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
+   :config (load-theme 'uwu t))
 #+end_src
 
 ** Doom-modeline 状态栏
