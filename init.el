@@ -334,8 +334,6 @@
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
 
-(straight-use-package 'project)
-
 (use-package magit
   :straight t
   )
