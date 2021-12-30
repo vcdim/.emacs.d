@@ -22,6 +22,11 @@
   `(when (eq system-type ',type)
      ,@body))
 
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-language-environment 'utf-8)
+(set-selection-coding-system 'utf-8)
+
 ;; 关闭启动消息
 (setq inhibit-startup-message t)
 ;; 关闭滚动条
@@ -368,7 +373,7 @@
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
-;; 取消让 emacs 自动最小化的 C-z 
+
 (global-unset-key (kbd "C-z"))
 
 (setq user-full-name "Qun Gu")
@@ -391,7 +396,6 @@
         insert-directory-program "/usr/local/bin/gls"
         dired-listing-switches "-aBhl --group-directories-first"))
 
-;; 打开”选择删除模式” —— 选择一块区域之后，键入新的内容时会把已选区域内容删掉。
 (delete-selection-mode 1)
 
 (with-eval-after-load 'org
@@ -472,6 +476,9 @@
   ("C-M-y" . org-download-screenshot)
   :config
   (require 'org-download))
+
+(use-package emacsql-sqlite3
+  :straight t)
 
 (use-package org-roam
   :straight t
@@ -561,9 +568,7 @@
                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
   )
 
-;; LaTeX 默认引擎 xetex
 (setq TeX-engine 'xetex)
-
 (setq TeX-command-extra-options "-shell-escape")
 
 (use-package auctex
