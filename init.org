@@ -33,6 +33,15 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
 (straight-use-package 'use-package)
 #+end_src
 
+** define system
+#+begin_src elisp
+(defmacro with-system (type &rest body)
+  "Evaluate BODY if `system-type' equals TYPE."
+  (declare (indent defun))
+  `(when (eq system-type ',type)
+     ,@body))
+#+end_src
+
 * Decorations 装饰
 ** Interface 界面
 #+begin_src elisp
@@ -426,10 +435,6 @@ company-auctex
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
 #+end_src
-** project
-#+begin_src elisp
-(straight-use-package 'project)
-#+end_src
 
 ** magit
 #+begin_src elisp
@@ -438,17 +443,14 @@ company-auctex
   )
 #+end_src
 
-** vterm
+** vterm and multi-vterm
 #+begin_src elisp
-(use-package vterm
-  :straight t
-  )
-#+end_src
-
-** multi-vterm
-#+begin_src elisp
-(use-package multi-vterm
-  :straight t
+(with-system darwin
+  (use-package vterm
+    :straight t
+    )
+  (use-package multi-vterm
+    :straight t)
   )
 #+end_src
 

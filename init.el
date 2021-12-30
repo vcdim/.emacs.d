@@ -16,6 +16,12 @@
 
 (straight-use-package 'use-package)
 
+(defmacro with-system (type &rest body)
+  "Evaluate BODY if `system-type' equals TYPE."
+  (declare (indent defun))
+  `(when (eq system-type ',type)
+     ,@body))
+
 ;; 关闭启动消息
 (setq inhibit-startup-message t)
 ;; 关闭滚动条
@@ -334,18 +340,16 @@
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
 
-(straight-use-package 'project)
-
 (use-package magit
   :straight t
   )
 
-(use-package vterm
-  :straight t
-  )
-
-(use-package multi-vterm
-  :straight t
+(with-system darwin
+  (use-package vterm
+    :straight t
+    )
+  (use-package multi-vterm
+    :straight t)
   )
 
 (use-package benchmark-init
