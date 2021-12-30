@@ -48,6 +48,7 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
 (set-default-coding-systems 'utf-8)
 (set-language-environment 'utf-8)
 (set-selection-coding-system 'utf-8)
+(setq system-time-locale "C")
 #+end_src
 
 * Decorations 装饰

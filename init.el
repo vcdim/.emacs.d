@@ -26,6 +26,7 @@
 (set-default-coding-systems 'utf-8)
 (set-language-environment 'utf-8)
 (set-selection-coding-system 'utf-8)
+(setq system-time-locale "C")
 
 ;; 关闭启动消息
 (setq inhibit-startup-message t)
