@@ -350,6 +350,10 @@
   :straight t
   )
 
+;; a fix for project-switch-commands to be void
+;; Reference: https://libredd.it/r/emacs/comments/po9cfj/magit_commands_broken/?sort=new
+(setq project-switch-commands t)
+
 (with-system darwin
   (use-package vterm
     :straight t
