@@ -60,7 +60,7 @@
 (use-package doom-themes
   :straight t
   :config
-  (load-theme 'doom-dracula t)
+  (load-theme 'doom-acario-light t)
   (setq doom-themes-enable-italic nil)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
@@ -87,6 +87,7 @@
   :config
   (cnfonts-enable)
   (setq cnfonts-use-face-font-rescale t)
+  (setq use-default-font-for-symbols nil)
   ;; 使得放缩时，中文能够跟着一起放缩
   (setq face-font-rescale-alist '(("STSong" . 1.2) ("STXihei" . 1.2) ("STFangsong" . 1.2) ("STKaiti" . 1.2)))
   )
@@ -541,6 +542,11 @@
   :straight t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
+  (setq org-superstar-item-bullet-alist
+	'((?* . ?★)
+	  (?+ . ?❒)
+      (?- . ?➛))
+	)
   )
 
 (use-package org-super-agenda

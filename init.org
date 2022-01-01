@@ -1,7 +1,6 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
-
 * Initialization 初始化
 We want to use =init.org= to manage =init.el=. When the current buffer is =init.org=, we would like to perform a =org-bable-tangle= to export this org file. The result is set at the very begining of the buffer, which is =./init.el=. And at the same time, we don't want to do a confirmation, so setting =org-confirm-babel-evaluate= as =nil=.
 #+begin_src elisp
@@ -83,12 +82,13 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
               100)
          '(85 . 50) '(100 . 100)))))
 #+end_src
+
 ** Theme 主题
 #+begin_src elisp
 (use-package doom-themes
   :straight t
   :config
-  (load-theme 'doom-dracula t)
+  (load-theme 'doom-acario-light t)
   (setq doom-themes-enable-italic nil)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
@@ -121,6 +121,7 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
   :config
   (cnfonts-enable)
   (setq cnfonts-use-face-font-rescale t)
+  (setq use-default-font-for-symbols nil)
   ;; 使得放缩时，中文能够跟着一起放缩
   (setq face-font-rescale-alist '(("STSong" . 1.2) ("STXihei" . 1.2) ("STFangsong" . 1.2) ("STKaiti" . 1.2)))
   )
@@ -684,11 +685,46 @@ company-auctex
 #+end_src
 
 ** org-superstar
+✀✁✂✃✄✅✆✇✈✉✊✋✌✍✎✏
+✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟
+✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯
+✰✱✲✳✴✵✶✷✸✹✺✻✼✽✾✿
+❀❁❂❃❄❅❆❇❈❉❊❋❌❍❎❏
+❐❑❒❓❔❕❖❗❘❙❚❛❜❝❞❟
+❠❡❢❣❤❥❦❧❨❩❪❫❬❭❮❯
+❰❱❲❳❴❵❶❷❸❹❺❻❼❽❾❿
+➀➁➂➃➄➅➆➇➈➉➊➋➌➍➎➏
+➐➑➒➓➔➕➖➗➘➙➚➛➜➝➞➟
+➠➡➢➣➤➥➦➧➨➩➪➫➬➭➮➯
+➰➱➲➳➴➵➶➷➸➹➺➻➼➽➾➿
+☀☁☂☃☄★☆☇☈☉☊☋☌☍☎☏
+☐☑☒☓☔☕☖☗☘☙☚☛☜☝☞☟
+☠☡☢☣☤☥☦☧☨☩☪☫☬☭☮☯
+☰☱☲☳☴☵☶☷☸☹☺☻☼☽☾☿
+♀♁♂♃♄♅♆♇♈♉♊♋♌♍♎♏
+♐♑♒♓♔♕♖♗♘♙♚♛♜♝♞♟
+♠♡♢♣♤♥♦♧♨♩♪♫♬♭♮♯
+♰♱♲♳♴♵♶♷♸♹♺♻♼♽♾♿
+⚀⚁⚂⚃⚄⚅⚆⚇⚈⚉⚊⚋⚌⚍⚎⚏
+⚐⚑⚒⚓⚔⚕⚖⚗⚘⚙⚚⚛⚜⚝⚞⚟
+⚠⚡⚢⚣⚤⚥⚦⚧⚨⚩⚪⚫⚬⚭⚮⚯
+⚰⚱⚲⚳⚴⚵⚶⚷⚸⚹⚺⚻⚼⚽⚾⚿
+⛀⛁⛂⛃⛄⛅⛆⛇⛈⛉⛊⛋⛌⛍⛎⛏
+⛐⛑⛒⛓⛔⛕⛖⛗⛘⛙⛚⛛⛜⛝⛞⛟
+⛠⛡⛢⛣⛤⛥⛦⛧⛨⛩⛪⛫⛬⛭⛮⛯
+⛰⛱⛲⛳⛴⛵⛶⛷⛸⛹⛺⛻⛼⛽⛾⛿
+✂✈✉✌✍✏✒✔✖✝
+✡✳✴❄❇❓❗❣❤➡️
 #+begin_src elisp
 (use-package org-superstar
   :straight t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
+  (setq org-superstar-item-bullet-alist
+	'((?* . ?★)
+	  (?+ . ?❒)
+      (?- . ?➛))
+	)
   )
 #+end_src
 
