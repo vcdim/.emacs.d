@@ -379,12 +379,14 @@
   :ensure t
   )
 
-(global-set-key (kbd "C-c t") 'toggle-transarency)
+(global-set-key (kbd "C-c t") 'toggle-transparency)
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
 
-(global-unset-key (kbd "C-z"))
+(with-eval-after-load 'org
+  (global-unset-key (kbd "C-z"))
+  )
 
 (setq user-full-name "Qun Gu")
 
