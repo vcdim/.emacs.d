@@ -57,9 +57,13 @@
               100)
          '(85 . 50) '(100 . 100)))))
 
+(use-package uwu-theme
+   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
+   )
 (use-package doom-themes
   :straight t
   :config
+  (mapc #'disable-theme custom-enabled-themes)
   (load-theme 'doom-acario-light t)
   (setq doom-themes-enable-italic nil)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
@@ -67,9 +71,6 @@
   (doom-themes-org-config)
   (doom-themes-visual-bell-config)
   )
-(use-package uwu-theme
-   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
-   :config (load-theme 'uwu t))
 
 (use-package doom-modeline
   :straight t
@@ -378,7 +379,7 @@
   :ensure t
   )
 
-(global-set-key (kbd "C-c t") 'toggle-transparency)
+(global-set-key (kbd "C-c t") 'toggle-transarency)
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
