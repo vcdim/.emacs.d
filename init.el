@@ -111,6 +111,13 @@
      (width . 0.7)
      (left . 0.5))))
 
+(setf (cdr (assq 'continuation fringe-indicator-alist))
+      ;; '(nil nil) ;; no continuation indicators
+      '(nil right-curly-arrow) ;; right indicator only
+      ;; '(left-curly-arrow nil) ;; left indicator only
+      ;; '(left-curly-arrow right-curly-arrow) ;; default
+      )
+
 (use-package counsel
   :straight t
   :bind
@@ -419,6 +426,7 @@
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (toggle-word-wrap 1)
   (toggle-truncate-lines 1)
+  (modify-syntax-entry ?_ "w")
 
   (defun insert-zero-width-space () (interactive) (insert-char #x200b))
   (defun my-latex-filter-zws (text backend info)
@@ -467,7 +475,9 @@
   (setq org-habit-show-all-today t)
   ;;
   (setq org-agenda-archives-mode t)
-  )
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "CMU Bright")))))
 
 (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
 (setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
@@ -585,6 +595,10 @@
                   (org-agenda-start-on-weekday 1)
                   (org-agenda-start-with-log-mode '(closed))
                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
+  )
+
+(use-package org-present
+  :straight t
   )
 
 (setq TeX-engine 'xetex)

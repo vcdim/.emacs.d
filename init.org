@@ -156,6 +156,16 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
      (left . 0.5))))
 #+end_src
 
+** fringe-indicator 折行标记
+#+begin_src elisp
+(setf (cdr (assq 'continuation fringe-indicator-alist))
+      ;; '(nil nil) ;; no continuation indicators
+      '(nil right-curly-arrow) ;; right indicator only
+      ;; '(left-curly-arrow nil) ;; left indicator only
+      ;; '(left-curly-arrow right-curly-arrow) ;; default
+      )
+#+end_src
+
 * Easy Operation 便捷操作
 ** counsel 命令增强
 #+begin_src elisp
@@ -555,6 +565,7 @@ company-auctex
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (toggle-word-wrap 1)
   (toggle-truncate-lines 1)
+  (modify-syntax-entry ?_ "w")
 
   (defun insert-zero-width-space () (interactive) (insert-char #x200b))
   (defun my-latex-filter-zws (text backend info)
@@ -603,7 +614,9 @@ company-auctex
   (setq org-habit-show-all-today t)
   ;;
   (setq org-agenda-archives-mode t)
-  )
+  (custom-theme-set-faces
+   'user
+   '(variable-pitch ((t (:family "CMU Bright")))))
 #+end_src
 ** org-pomodoro
 #+begin_src elisp
@@ -769,6 +782,13 @@ company-auctex
                   (org-agenda-start-on-weekday 1)
                   (org-agenda-start-with-log-mode '(closed))
                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
+  )
+#+end_src
+
+** org-present
+#+begin_src elisp
+(use-package org-present
+  :straight t
   )
 #+end_src
 
