@@ -617,6 +617,7 @@ company-auctex
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "CMU Bright")))))
+  )
 #+end_src
 ** org-pomodoro
 #+begin_src elisp
