@@ -478,6 +478,7 @@
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "CMU Bright")))))
+  )
 
 (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
 (setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
