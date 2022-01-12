@@ -156,6 +156,12 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
      (left . 0.5))))
 #+end_src
 
+** transpose-frame
+#+begin_src elisp
+(use-package transpose-frame
+  :straight t
+  )
+#+end_src
 ** fringe-indicator 折行标记
 #+begin_src elisp
 (setf (cdr (assq 'continuation fringe-indicator-alist))
@@ -599,7 +605,7 @@ company-auctex
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/agenda/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/daily/" "\\.org$"))
   ;; 设置 TODO 状态可能性
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
   ;; 当关闭项目时自动记录时间

@@ -111,6 +111,10 @@
      (width . 0.7)
      (left . 0.5))))
 
+(use-package transpose-frame
+  :straight t
+  )
+
 (setf (cdr (assq 'continuation fringe-indicator-alist))
       ;; '(nil nil) ;; no continuation indicators
       '(nil right-curly-arrow) ;; right indicator only
@@ -460,7 +464,7 @@
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/agenda/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/daily/" "\\.org$"))
   ;; 设置 TODO 状态可能性
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
   ;; 当关闭项目时自动记录时间
