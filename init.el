@@ -458,9 +458,17 @@
 				   ))
   (setq org-highlight-latex-and-related '(latex script entities))
   (setq org-latex-pdf-process
-      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;; org-agenda 里，隐藏/显示 Closed 任务
+  (defun org-toggle-agenda-show-closed-logs ()
+    (interactive)
+    (if (equal (car org-agenda-log-mode-items) 'closed)
+	(setq org-agenda-log-mode-items '(clock))
+      (setq org-agenda-log-mode-items '(closed clock)))
+    (org-agenda-redo)
+    )
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件

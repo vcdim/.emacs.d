@@ -521,7 +521,8 @@ company-auctex
 (with-eval-after-load 'org
   (global-unset-key (kbd "C-z"))
   )
-#+end_src
+#+END_SRC
+
 * Basic Setting 基本设置
 ** User Name
 #+begin_src elisp
@@ -557,10 +558,10 @@ company-auctex
 打开”选择删除模式” —— 选择一块区域之后，键入新的内容时会把已选区域内容删掉。
 #+begin_src elisp
 (delete-selection-mode 1)
-#+end_src
+#+END_SRC
+
 * Programming Language Supports 编程语言支持
 ** Org
-
 #+begin_src elisp
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -599,9 +600,17 @@ company-auctex
 				   ))
   (setq org-highlight-latex-and-related '(latex script entities))
   (setq org-latex-pdf-process
-      '("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-        "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  ;; org-agenda 里，隐藏/显示 Closed 任务
+  (defun org-toggle-agenda-show-closed-logs ()
+    (interactive)
+    (if (equal (car org-agenda-log-mode-items) 'closed)
+	(setq org-agenda-log-mode-items '(clock))
+      (setq org-agenda-log-mode-items '(closed clock)))
+    (org-agenda-redo)
+    )
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件
@@ -625,6 +634,7 @@ company-auctex
    '(variable-pitch ((t (:family "CMU Bright")))))
   )
 #+end_src
+
 ** org-pomodoro
 #+begin_src elisp
 (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
@@ -632,6 +642,7 @@ company-auctex
 (setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
 (setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
 #+end_src
+
 ** org-download
 #+begin_src elisp
 (use-package org-download
@@ -649,6 +660,7 @@ company-auctex
   :config
   (require 'org-download))
 #+end_src
+
 ** emacs-sqlite3
 #+begin_src elisp
 (with-system windows-nt
