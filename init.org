@@ -518,9 +518,7 @@ company-auctex
 #+end_src
 取消让 emacs 自动最小化的 C-z
 #+begin_src elisp
-(with-eval-after-load 'org
-  (global-unset-key (kbd "C-z"))
-  )
+(global-unset-key (kbd "C-z"))
 #+END_SRC
 
 * Basic Setting 基本设置
@@ -614,7 +612,7 @@ company-auctex
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/daily/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/" "\\.org$"))
   ;; 设置 TODO 状态可能性
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
   ;; 当关闭项目时自动记录时间

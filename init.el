@@ -106,10 +106,30 @@
   :straight t
   )
 (custom-set-variables
- '(mini-frame-show-parameters
-   '((top . 10)
-     (width . 0.7)
-     (left . 0.5))))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(LaTeX-indent-environment-list
+   '(("minted" current-indentation)
+     ("verbatim" current-indentation)
+     ("verbatim*" current-indentation)
+     ("filecontents" current-indentation)
+     ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular)
+     ("tabular*" LaTeX-indent-tabular)
+     ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular)
+     ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular)
+     ("displaymath")
+     ("equation")
+     ("equation*")
+     ("picture")
+     ("tabbing")))
+ '(mini-frame-show-parameters '((top . 10) (width . 0.7) (left . 0.5)))
+ '(safe-local-variable-values '((TeX-command-extra-options . "-shell-escape"))))
 
 (use-package transpose-frame
   :straight t
@@ -395,9 +415,7 @@
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
 
-(with-eval-after-load 'org
-  (global-unset-key (kbd "C-z"))
-  )
+(global-unset-key (kbd "C-z"))
 
 (setq user-full-name "Qun Gu")
 
@@ -472,7 +490,7 @@
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/daily/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/" "\\.org$"))
   ;; 设置 TODO 状态可能性
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
   ;; 当关闭项目时自动记录时间
@@ -713,26 +731,10 @@ environments."
                   ("description" LaTeX-indent-item))
                 LaTeX-indent-environment-list)))
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(LaTeX-indent-environment-list
-   '(("minted" current-indentation)
-     ("verbatim" current-indentation)
-     ("verbatim*" current-indentation)
-     ("filecontents" current-indentation)
-     ("filecontents*" current-indentation)
-     ("tabular" LaTeX-indent-tabular)
-     ("tabular*" LaTeX-indent-tabular)
-     ("align" LaTeX-indent-tabular)
-     ("align*" LaTeX-indent-tabular)
-     ("array" LaTeX-indent-tabular)
-     ("eqnarray" LaTeX-indent-tabular)
-     ("eqnarray*" LaTeX-indent-tabular)
-     ("displaymath")
-     ("equation")
-     ("equation*")
-     ("picture")
-     ("tabbing"))))
+ '(variable-pitch ((t (:family "CMU Bright")))))
