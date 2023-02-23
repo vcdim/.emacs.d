@@ -1,20 +1,16 @@
 (defun my/org-babel-tangle-config()
   (when (string-equal (buffer-file-name) (expand-file-name "init.org" user-emacs-directory))
+    ;; Setting org-confirm-babel-evaluate as nil can skip confirmation
+    ;; Function org-bable-tangle can export .org to .el
     (let ((org-confirm-babel-evaluate nil)) (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 
-(defvar bootstrap-version)
-(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)) (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
+(require 'package)
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+(setq package-check-signature nil)
 
 (defmacro with-system (type &rest body)
   "Evaluate BODY if `system-type' equals TYPE."
@@ -28,43 +24,33 @@
 (set-selection-coding-system 'utf-8)
 (setq system-time-locale "C")
 
-;; 关闭启动消息
 (setq inhibit-startup-message t)
-;; 关闭滚动条
 (scroll-bar-mode -1)
-;; 关闭工具栏
 (tool-bar-mode -1)
-;; 更改光标为竖线
 (setq-default cursor-type 'bar)
-;; 设置 10 个像素的左右页边距 （fringe）
 (set-fringe-mode 10)
-;; 全局高亮当前行
 (global-hl-line-mode t)
-;; 启动时最大化窗口
 ;; (toggle-frame-maximized)
-;; 显示电池电量
+(set-default 'truncate-lines t)
+(set-default 'word-wrap t)
+(setq truncate-partial-width-windows nil)
 (display-battery-mode t)
-;; 增加透明功能
 (defun toggle-transparency ()
   (interactive)
   (let ((alpha (frame-parameter nil 'alpha)))
     (set-frame-parameter
      nil 'alpha
      (if (eql (cond ((numberp alpha) alpha)
-                    ((numberp (cdr alpha)) (cdr alpha))
-                    ;; Also handle undocumented (<active> <inactive>) form.
-                    ((numberp (cadr alpha)) (cadr alpha)))
-              100)
-         '(85 . 50) '(100 . 100)))))
+		    ((numberp (cdr alpha)) (cdr alpha))
+		    ((numberp (cadr alpha)) (cadr alpha)))
+	      100)
+	 '(85 . 50) '(100 . 100)))))
+(setq display-line-numbers 'relative)
 
-(use-package uwu-theme
-   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
-   )
 (use-package doom-themes
-  :straight t
+  :ensure t
   :config
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'doom-acario-light t)
   (setq doom-themes-enable-italic nil)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
@@ -73,25 +59,60 @@
   )
 
 (use-package doom-modeline
-  :straight t
+  :ensure t
   :config
   (doom-modeline-mode 1)
   )
 
 (use-package cnfonts
-  :straight t
+  :ensure t
   :custom
   (cnfonts-personal-fontnames
-   '(("MesloLGS NF" "JetBrains Mono")
+   '((
+      "MesloLGS NF"
+      "Jetbrains Mono"
+      "agave Nerd Font"
+      "BigBlue_Terminal_437TT NFM"
+      "iMWritingMonoS NFM"
+      "Hurmit NFM"
+      "ShureTechMono NFM"
+      "IosevkaTerm NFM"
+      "Iosevka NFM"
+      "Lekton NFM"
+      "CodeNewRoman NFM"
+      "FantasqueSansMono NFM")
      ()
      ()))
   :config
   (cnfonts-enable)
   (setq cnfonts-use-face-font-rescale t)
   (setq use-default-font-for-symbols nil)
-  ;; 使得放缩时，中文能够跟着一起放缩
+  
+  ;; zoom Chinese characters together with
   (setq face-font-rescale-alist '(("STSong" . 1.2) ("STXihei" . 1.2) ("STFangsong" . 1.2) ("STKaiti" . 1.2)))
+
+  ;; a fix for Chinese punctuations
+  (defun blaenk/set-char-widths (alist)
+    (while (char-table-parent char-width-table)
+      (setq char-width-table (char-table-parent char-width-table)))
+    (dolist (pair alist)
+      (let ((width (car pair))
+	    (chars (cdr pair))
+	    (table (make-char-table nil)))
+	(dolist (char chars)
+	  (set-char-table-range table char width))
+	(optimize-char-table table)
+	(set-char-table-parent table char-width-table)
+	(setq char-width-table table))))
+  (blaenk/set-char-widths
+   `((1 . (,(string-to-char "”")
+	   ,(string-to-char "“")
+	   ,(string-to-char "…")
+	   ))))
   )
+
+(use-package all-the-icons
+  :ensure t)
 
 (copy-face font-lock-constant-face 'calendar-iso-week-face)
 (set-face-attribute 'calendar-iso-week-face nil :height 0.7)
@@ -103,37 +124,13 @@
         'font-lock-face 'calendar-iso-week-face))
 
 (use-package mini-frame
-  :straight t
+  :ensure t
   )
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(LaTeX-indent-environment-list
-   '(("minted" current-indentation)
-     ("verbatim" current-indentation)
-     ("verbatim*" current-indentation)
-     ("filecontents" current-indentation)
-     ("filecontents*" current-indentation)
-     ("tabular" LaTeX-indent-tabular)
-     ("tabular*" LaTeX-indent-tabular)
-     ("align" LaTeX-indent-tabular)
-     ("align*" LaTeX-indent-tabular)
-     ("array" LaTeX-indent-tabular)
-     ("eqnarray" LaTeX-indent-tabular)
-     ("eqnarray*" LaTeX-indent-tabular)
-     ("displaymath")
-     ("equation")
-     ("equation*")
-     ("picture")
-     ("tabbing")))
- '(mini-frame-show-parameters '((top . 10) (width . 0.7) (left . 0.5)))
- '(safe-local-variable-values '((TeX-command-extra-options . "-shell-escape"))))
-
-(use-package transpose-frame
-  :straight t
-  )
+ '(mini-frame-show-parameters
+   '((top . 10)
+     (width . 0.7)
+     (left . 0.5))))
 
 (setf (cdr (assq 'continuation fringe-indicator-alist))
       ;; '(nil nil) ;; no continuation indicators
@@ -143,7 +140,7 @@
       )
 
 (use-package counsel
-  :straight t
+  :ensure t
   :bind
   ("C-x C-f" . counsel-find-file)
   ("<f1> f" . counsel-describe-function)
@@ -153,35 +150,31 @@
   ("<f2> i" . counsel-info-lookup-symbol)
   ("<f2> u" . counsel-unicode-char)
   ("M-s-j" . ivy-immediate-done)
+  ("C-s" . swiper)
   )
 
-(use-package selectrum
-  :straight t
-  :config
-  (selectrum-mode +1)
-  )
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
 
 (use-package prescient
-  :straight t
+  :ensure t
   )
-(use-package selectrum-prescient
-  :straight t
+(use-package vertico-prescient
+  :ensure t
   )
-(selectrum-prescient-mode +1)
+(vertico-prescient-mode +1)
 (prescient-persist-mode +1)
 
-(use-package consult
-  :straight t
-  )
-
 (use-package marginalia
-  :straight t
-  :init
+  :ensure t
+  :config
   (marginalia-mode)
   )
 
 (use-package company
-  :straight t
+  :ensure t
   :config
   (setq company-tooltip-limit 20)
   (setq company-show-numbers t)
@@ -191,26 +184,15 @@
 (add-hook 'after-init-hook 'global-company-mode)
 
 (use-package sly
-  :straight t
+  :ensure t
   )
 
-(use-package company-org-roam
-  :straight (:host github :repo "org-roam/company-org-roam")
-  :config
-  (push 'company-org-roam company-backends)
-)
-
-(use-package company-auctex
-  :straight t
-  :config
-  (company-auctex-init))
-
 (use-package orderless
-  :straight t
+  :ensure t
   :custom (completion-styles '(orderless)))
 
 (use-package which-key
-  :straight t
+  :ensure t
   :diminish
   :config
   (which-key-mode)
@@ -218,7 +200,7 @@
   )
 
 (use-package multiple-cursors
-  :straight t
+  :ensure t
   :bind
   ("s-d" . mc/mark-next-like-this)
   ("M-s-<down>" . mc/mark-next-lines)
@@ -226,36 +208,8 @@
   ("C-S-<mouse-1>" . mc/add-cursor-on-click)
   )
 
-(use-package keycast
-  :straight t)
-(with-eval-after-load 'keycast
-  (define-minor-mode keycast-mode
-    "Show current command and its key binding in the mode line."
-    :global t
-    (if keycast-mode
-        (add-hook 'pre-command-hook 'keycast--update t)
-      (remove-hook 'pre-command-hook 'keycast--update)))
-
-  (add-to-list 'global-mode-string '("" mode-line-keycast)))
-
-(use-package diff-hl
-  :straight t
-  :config
-  (global-diff-hl-mode))
-
-(use-package tree-sitter-langs
-  :straight t)
-
-(use-package tree-sitter
-  :straight t
-  :hook (((python-mode) . tree-sitter-mode)
-         ((python-mode) . tree-sitter-hl-mode)))
-
-(use-package csv-mode
-  :straight t)
-
 (use-package ibuffer
-  :straight t
+  :ensure t
   :bind
   ("C-x C-b" . ibuffer)
   :config
@@ -279,7 +233,6 @@
   )
 
 (use-package treemacs
-  :straight t
   :ensure t
   :defer t
   :init
@@ -362,64 +315,48 @@
         ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
-  :straight t
   :after (treemacs projectile)
   :ensure t)
 
 (use-package treemacs-icons-dired
-  :straight t
   :hook (dired-mode . treemacs-icons-dired-enable-once)
   :ensure t)
 
 (use-package treemacs-magit
-  :straight t
   :after (treemacs magit)
   :ensure t)
 
 (use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-  :straight t
   :after (treemacs persp-mode) ;;or perspective vs. persp-mode
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
 
 (use-package magit
-  :straight t
+  :ensure t
   )
 
 ;; a fix for project-switch-commands to be void
 ;; Reference: https://libredd.it/r/emacs/comments/po9cfj/magit_commands_broken/?sort=new
 (setq project-switch-commands t)
 
-(with-system darwin
-  (use-package vterm
-    :straight t
-    )
-  (use-package multi-vterm
-    :straight t)
-  )
-
-(use-package benchmark-init
-  :straight t
-  :config
-  ;; To disable collection of benchmark data after init is done.
-  (add-hook 'after-init-hook 'benchmark-init/deactivate)
-  )
-
-(use-package pocket-reader
-  :straight t
+(use-package git-gutter
   :ensure t
-  )
+  :config
+  (global-git-gutter-mode +1))
 
 (global-set-key (kbd "C-c t") 'toggle-transparency)
+
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
 
+;; Disable C-z to minimize
 (global-unset-key (kbd "C-z"))
 
 (setq user-full-name "Qun Gu")
 
-(straight-use-package 'exec-path-from-shell)
+(use-package exec-path-from-shell
+  :ensure t)
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
 
@@ -437,7 +374,11 @@
         insert-directory-program "/usr/local/bin/gls"
         dired-listing-switches "-aBhl --group-directories-first"))
 
+;; Inserting text while the mark is active causes the selected text to be deleted first
 (delete-selection-mode 1)
+
+;; keep the buffer up-to-date
+(global-auto-revert-mode t)
 
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -447,7 +388,6 @@
   (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (toggle-word-wrap 1)
-  (toggle-truncate-lines 1)
   (modify-syntax-entry ?_ "w")
 
   (defun insert-zero-width-space () (interactive) (insert-char #x200b))
@@ -477,9 +417,10 @@
   (setq org-highlight-latex-and-related '(latex script entities))
   (setq org-latex-pdf-process
 	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  ;; org-agenda 里，隐藏/显示 Closed 任务
+	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  
+  ;; Hide Closed tasks in org-agenda
   (defun org-toggle-agenda-show-closed-logs ()
     (interactive)
     (if (equal (car org-agenda-log-mode-items) 'closed)
@@ -487,36 +428,42 @@
       (setq org-agenda-log-mode-items '(closed clock)))
     (org-agenda-redo)
     )
+  
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
-  ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/" "\\.org$"))
-  ;; 设置 TODO 状态可能性
+  
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/org/" "\\.org$"))
+  
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
-  ;; 当关闭项目时自动记录时间
+  
+  ;; automatic track done time
   (setq org-log-done 'time)
+
   ;; 显示已经完成的任务
   (setq org-agenda-start-with-log-mode '(closed))
-  ;; 习惯完成总是显示绿色
+  
   (setq org-habit-show-done-always-green t)
-  ;; 习惯图从第 80 格开始显示
+  
   (setq org-habit-graph-column 80)
-  ;; 显示每天习惯
+  
   (setq org-habit-show-all-today t)
-  ;;
+  
   (setq org-agenda-archives-mode t)
+  
+  (setq org_notes (concat (getenv "HOME") "SynologyDrive/notes/"))
+  
+  (global-set-key (kbd "C-c l") #'org-store-link)
+  (global-set-key (kbd "C-c a") #'org-agenda)
+  (global-set-key (kbd "C-c c") #'org-capture)
+  
   (custom-theme-set-faces
    'user
-   '(variable-pitch ((t (:family "CMU Bright")))))
+   '(variable-pitch ((t (:family "CMU Bright"))))
+   )
   )
 
-(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
-(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
-
 (use-package org-download
-  :straight t
+  :ensure t
   :after org
   :custom
   (org-download-method 'directory)
@@ -530,13 +477,19 @@
   :config
   (require 'org-download))
 
-(with-system windows-nt
-  (use-package emacsql-sqlite3
-    :straight t)
+(setq org-capture-templates
+  '(
+    ("j" "Journal" entry (file+olp+datetree "~/SynologyDrive/org/worklog.org")
+	   "* %U %?\n  %i")
+    ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org")
+     "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%:initial\n#+END_QUOTE\n\n\n%?")
+    ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
+     "* %? [[%:link][%:description]] \nCaptured On: %U")
+    )
   )
 
 (use-package org-roam
-  :straight t
+  :ensure t
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
@@ -557,10 +510,11 @@
          ("C-c n d" . org-roam-dailies-goto-today)
          )
   :config
+  ;; (setq org-roam-database-connector 'sqlite3)
   (org-roam-db-autosync-mode)
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
-                 (display-buffer-in-side-window)
+"* %?\nEntered on %U\n  %i\n  %a"                 (display-buffer-in-side-window)
                  (side . right)
                  (slot . 0)
                  (window-width . 0.33)
@@ -568,33 +522,19 @@
                                        (no-delete-other-windows . t)))))
   )
 
-(use-package org-roam-ui
-  :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
-
 (use-package org-superstar
-  :straight t
+  :ensure t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
   (setq org-superstar-item-bullet-alist
-	'((?* . ?★)
-	  (?+ . ?❒)
-      (?- . ?➛))
-	)
+	 '((?* . ?★)
+	   (?+ . ?❒)
+     (?- . ?➛))
+	 )
   )
 
 (use-package org-super-agenda
-  :straight t
+  :ensure t
   :config
   (let ((org-super-agenda-groups
 	 '((:log t)  ; Automatically named "Log"
@@ -628,15 +568,20 @@
                   (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
   )
 
-(use-package org-present
-  :straight t
+(use-package org-ref
+  :ensure t
+  :config
+  (require 'org-ref-helm)
+  (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
   )
+
+(require 'org-protocol)
 
 (setq TeX-engine 'xetex)
 (setq TeX-command-extra-options "-shell-escape")
 
 (use-package auctex
-  :straight t
+  :ensure t
   :defer t
   )
 (add-hook 'LaTeX-mode-hook 
@@ -645,16 +590,6 @@
             (setq TeX-command-default "XeLaTeX")
             (setq TeX-save-query nil)
             (setq TeX-show-compilation t)))
-
-(use-package cdlatex
-  :straight t
-  :defer t
-  )
-
-(use-package zotxt
-  :straight t
-  :defer t  
-  )
 
 (defcustom TeX-buf-close-at-warnings-only t
   "Close TeX buffer if there are only warnings."
@@ -731,10 +666,122 @@ environments."
                   ("description" LaTeX-indent-item))
                 LaTeX-indent-environment-list)))
 
+(custom-set-variables
+ '(LaTeX-indent-environment-list
+   '(("minted" current-indentation)
+     ("verbatim" current-indentation)
+     ("verbatim*" current-indentation)
+     ("filecontents" current-indentation)
+     ("filecontents*" current-indentation)
+     ("tabular" LaTeX-indent-tabular)
+     ("tabular*" LaTeX-indent-tabular)
+     ("align" LaTeX-indent-tabular)
+     ("align*" LaTeX-indent-tabular)
+     ("array" LaTeX-indent-tabular)
+     ("eqnarray" LaTeX-indent-tabular)
+     ("eqnarray*" LaTeX-indent-tabular)
+     ("displaymath")
+     ("equation")
+     ("equation*")
+     ("picture")
+     ("tabbing"))))
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(variable-pitch ((t (:family "CMU Bright")))))
+(setq bibtex-completion-bibliography '("~/SynologyDrive/Library/bib/mybib.bib"))
+(setq bibtex-completion-pdf-field "file")
+(setq bibtex-completion-notes-path "~/SynologyDrive/notes")
+(setq org-cite-follow-processor 'helm-bibtex-org-cite-follow)
+(setq bibtex-completion-display-formats
+    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+(setq bibtex-completion-additional-search-fields '(keywords))
+(setq bibtex-completion-pdf-symbol "#")
+(setq bibtex-completion-notes-symbol "N")
+(setq bibtex-completion-pdf-open-function
+ (lambda (fpath)
+	(call-process
+	 "C\:\\Users\\guqun\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe" nil 0 nil "-reuse-instance" fpath)))
+
+(use-package zotxt
+  :ensure t
+  :defer t
+  )
+(add-hook 'org-mode-hook (lambda () (org-zotxt-mode 1)))
+(define-key org-mode-map
+  (kbd "C-c \" \"") (lambda () (interactive)
+                      (org-zotxt-insert-reference-link '(4))))
+
+(pdf-tools-install)
+(setq-default pdf-view-display-size 'fit-height)
+
+(use-package markdown-mode
+  :ensure t)
+
+(use-package yaml-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  )
+
+(use-package elfeed
+  :ensure t
+  :config
+  (setq elfeed-feeds
+	'("http://arxiv.org/rss/cs.CV"
+	  "http://arxiv.org/rss/cs.IR"))
+
+  (setq elfeed-show-mode-hook
+      (lambda ()
+	(set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :size 36))
+	(setq fill-column 120)
+	(setq elfeed-show-entry-switch #'my-show-elfeed)))
+
+  (defun my-show-elfeed (buffer)
+    (with-current-buffer buffer
+      (setq buffer-read-only nil)
+      (goto-char (point-min))
+      (re-search-forward "\n\n")
+      (fill-individual-paragraphs (point) (point-max))
+      (setq buffer-read-only t))
+    (switch-to-buffer buffer))
+  )
+
+(use-package org2blog
+             :ensure t)
+(setq org2blog/wp-blog-alist
+      '(("guqun"
+         :url "http://galoisgu.com/wordpress/xmlrpc.php"
+         :username "guqun"))
+      org2blog/wp-show-post-in-browser 'show
+      org2blog/wp-use-wp-latex nil)
+
+(use-package ox-hugo
+  :ensure t
+  :after ox
+  :config
+  (setq org-hugo-base-dir "~/SynologyDrive/myhugo/")
+  (setq org-hugo-default-section-directory "post")
+  )
+
+(use-package easy-hugo
+  :ensure t
+  :init
+  (setq easy-hugo-basedir "~/SynologyDrive/myhugo/")
+  (setq easy-hugo-url "http://galoisgu.com/hugo/")
+  (setq easy-hugo-sshdomain "aliyun")
+  (setq easy-hugo-root "/var/www/html/hugo/")
+  (setq easy-hugo-previewtime "300")
+  (setq easy-hugo-default-ext ".org")
+  (setq easy-hugo-org-header t)
+  (define-key global-map (kbd "C-c C-e") 'easy-hugo)
+  )
+
+(setq tramp-verbose 6)
+
+(set-fontset-font "fontset-default" '(#x2010 . #x2027) "宋体" nil 'prepend)
+(load-theme 'doom-zenburn t)
+(require 'server)
+(or (eq (server-running-p) t)
+    (server-start))

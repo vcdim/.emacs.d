@@ -1,39 +1,30 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
-* Initialization 初始化
-We want to use =init.org= to manage =init.el=. When the current buffer is =init.org=, we would like to perform a =org-bable-tangle= to export this org file. The result is set at the very begining of the buffer, which is =./init.el=. And at the same time, we don't want to do a confirmation, so setting =org-confirm-babel-evaluate= as =nil=.
+
+* Initialization
+
+** Use =init.org= to manage =init.el=.
 #+begin_src elisp
 (defun my/org-babel-tangle-config()
   (when (string-equal (buffer-file-name) (expand-file-name "init.org" user-emacs-directory))
+    ;; Setting org-confirm-babel-evaluate as nil can skip confirmation
+    ;; Function org-bable-tangle can export .org to .el
     (let ((org-confirm-babel-evaluate nil)) (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 #+end_src
-  
-* Package Managements 软件包管理器
-** straight
-Code below is the exact snippet from https://github.com/raxod502/straight.el#getting-started, which is called *bootstrap code*.
-#+begin_src elisp
-(defvar bootstrap-version)
-(let ((bootstrap-file (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory)) (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-#+end_src
-We have already set the =(setq package-enable-at-startup nil)= in =early-init.el=.
 
-** use-package 使用 use-package
+** Define package archives
 #+begin_src elisp
-(straight-use-package 'use-package)
+(require 'package)
+(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+;; (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+(setq package-check-signature nil)
 #+end_src
 
-** Define with-system 定义 with-system 函数
-根据系统执行相应的程序
+** Self-defined functions
 #+begin_src elisp
 (defmacro with-system (type &rest body)
   "Evaluate BODY if `system-type' equals TYPE."
@@ -42,7 +33,7 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
      ,@body))
 #+end_src
 
-** Define Encoding 定义编码系统
+** Define Encoding
 #+begin_src elisp
 (prefer-coding-system 'utf-8)
 (set-default-coding-systems 'utf-8)
@@ -51,49 +42,39 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
 (setq system-time-locale "C")
 #+end_src
 
-* Decorations 装饰
-** Interface 界面
+* Decorations
+** UI
 #+begin_src elisp
-;; 关闭启动消息
 (setq inhibit-startup-message t)
-;; 关闭滚动条
 (scroll-bar-mode -1)
-;; 关闭工具栏
 (tool-bar-mode -1)
-;; 更改光标为竖线
 (setq-default cursor-type 'bar)
-;; 设置 10 个像素的左右页边距 （fringe）
 (set-fringe-mode 10)
-;; 全局高亮当前行
 (global-hl-line-mode t)
-;; 启动时最大化窗口
 ;; (toggle-frame-maximized)
-;; 显示电池电量
+(set-default 'truncate-lines t)
+(set-default 'word-wrap t)
+(setq truncate-partial-width-windows nil)
 (display-battery-mode t)
-;; 增加透明功能
 (defun toggle-transparency ()
   (interactive)
   (let ((alpha (frame-parameter nil 'alpha)))
     (set-frame-parameter
      nil 'alpha
      (if (eql (cond ((numberp alpha) alpha)
-                    ((numberp (cdr alpha)) (cdr alpha))
-                    ;; Also handle undocumented (<active> <inactive>) form.
-                    ((numberp (cadr alpha)) (cadr alpha)))
-              100)
-         '(85 . 50) '(100 . 100)))))
+		    ((numberp (cdr alpha)) (cdr alpha))
+		    ((numberp (cadr alpha)) (cadr alpha)))
+	      100)
+	 '(85 . 50) '(100 . 100)))))
+(setq display-line-numbers 'relative)
 #+end_src
 
-** Theme 主题
+** Theme
 #+begin_src elisp
-(use-package uwu-theme
-   :straight (uwu-theme :host github :repo "kborling/uwu-theme.el")
-   )
 (use-package doom-themes
-  :straight t
+  :ensure t
   :config
   (mapc #'disable-theme custom-enabled-themes)
-  (load-theme 'doom-acario-light t)
   (setq doom-themes-enable-italic nil)
   (setq doom-themes-treemacs-theme "doom-colors") ; use "doom-colors" for less minimal icon theme
   (doom-themes-treemacs-config)
@@ -102,35 +83,72 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
   )
 #+end_src
 
-** Doom-modeline 状态栏
+** Doom-modeline
 #+begin_src elisp
 (use-package doom-modeline
-  :straight t
+  :ensure t
   :config
   (doom-modeline-mode 1)
   )
 #+end_src
 
-** Chinese Fonts 中文
+** Chinese Fonts
 #+begin_src elisp
 (use-package cnfonts
-  :straight t
+  :ensure t
   :custom
   (cnfonts-personal-fontnames
-   '(("MesloLGS NF" "JetBrains Mono")
+   '((
+      "MesloLGS NF"
+      "Jetbrains Mono"
+      "agave Nerd Font"
+      "BigBlue_Terminal_437TT NFM"
+      "iMWritingMonoS NFM"
+      "Hurmit NFM"
+      "ShureTechMono NFM"
+      "IosevkaTerm NFM"
+      "Iosevka NFM"
+      "Lekton NFM"
+      "CodeNewRoman NFM"
+      "FantasqueSansMono NFM")
      ()
      ()))
   :config
   (cnfonts-enable)
   (setq cnfonts-use-face-font-rescale t)
   (setq use-default-font-for-symbols nil)
-  ;; 使得放缩时，中文能够跟着一起放缩
+  
+  ;; zoom Chinese characters together with
   (setq face-font-rescale-alist '(("STSong" . 1.2) ("STXihei" . 1.2) ("STFangsong" . 1.2) ("STKaiti" . 1.2)))
+
+  ;; a fix for Chinese punctuations
+  (defun blaenk/set-char-widths (alist)
+    (while (char-table-parent char-width-table)
+      (setq char-width-table (char-table-parent char-width-table)))
+    (dolist (pair alist)
+      (let ((width (car pair))
+	    (chars (cdr pair))
+	    (table (make-char-table nil)))
+	(dolist (char chars)
+	  (set-char-table-range table char width))
+	(optimize-char-table table)
+	(set-char-table-parent table char-width-table)
+	(setq char-width-table table))))
+  (blaenk/set-char-widths
+   `((1 . (,(string-to-char "”")
+	   ,(string-to-char "“")
+	   ,(string-to-char "…")
+	   ))))
   )
 #+end_src
 
-** Calendar 日历
-在日历中显示周数
+** All-the-icons
+#+begin_src elisp
+(use-package all-the-icons
+  :ensure t)
+#+end_src
+** Calendar
+Display week numbers in calendar
 #+begin_src elisp
 (copy-face font-lock-constant-face 'calendar-iso-week-face)
 (set-face-attribute 'calendar-iso-week-face nil :height 0.7)
@@ -143,11 +161,10 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
 #+end_src
 
 ** mini-frame
-开启 mini-frame 可以执行 =M-x mini-frame-mode=。
-
+Execute =M-x mini-frame-mode= to open up a miniframe.
 #+begin_src elisp
 (use-package mini-frame
-  :straight t
+  :ensure t
   )
 (custom-set-variables
  '(mini-frame-show-parameters
@@ -156,13 +173,7 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
      (left . 0.5))))
 #+end_src
 
-** transpose-frame
-#+begin_src elisp
-(use-package transpose-frame
-  :straight t
-  )
-#+end_src
-** fringe-indicator 折行标记
+** fringe-indicator
 #+begin_src elisp
 (setf (cdr (assq 'continuation fringe-indicator-alist))
       ;; '(nil nil) ;; no continuation indicators
@@ -172,11 +183,11 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
       )
 #+end_src
 
-* Easy Operation 便捷操作
-** counsel 命令增强
+* Easy Operation
+** counsel (Command enhancement)
 #+begin_src elisp
 (use-package counsel
-  :straight t
+  :ensure t
   :bind
   ("C-x C-f" . counsel-find-file)
   ("<f1> f" . counsel-describe-function)
@@ -186,52 +197,44 @@ We have already set the =(setq package-enable-at-startup nil)= in =early-init.el
   ("<f2> i" . counsel-info-lookup-symbol)
   ("<f2> u" . counsel-unicode-char)
   ("M-s-j" . ivy-immediate-done)
+  ("C-s" . swiper)
   )
 #+end_src
 
-** Completion 补全
-
-selectrum 增量补全
+** Completion
+*** vertico (Vertical interactive completion)
 #+begin_src elisp
-(use-package selectrum
-  :straight t
-  :config
-  (selectrum-mode +1)
-  )
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
 #+end_src
 
-prescient 排序过滤
+*** prescient (sorting and filtering)
 #+begin_src elisp
 (use-package prescient
-  :straight t
+  :ensure t
   )
-(use-package selectrum-prescient
-  :straight t
+(use-package vertico-prescient
+  :ensure t
   )
-(selectrum-prescient-mode +1)
+(vertico-prescient-mode +1)
 (prescient-persist-mode +1)
 #+end_src
 
-consult 
-#+begin_src elisp
-(use-package consult
-  :straight t
-  )
-#+end_src
-
-marginalia 命令说明
+*** marginalia (Marginalia in the minibuffer)
 #+begin_src elisp
 (use-package marginalia
-  :straight t
-  :init
+  :ensure t
+  :config
   (marginalia-mode)
   )
 #+end_src
 
-company
+*** company (Completion framework)
 #+begin_src elisp
 (use-package company
-  :straight t
+  :ensure t
   :config
   (setq company-tooltip-limit 20)
   (setq company-show-numbers t)
@@ -241,51 +244,35 @@ company
 (add-hook 'after-init-hook 'global-company-mode)
 #+end_src
 
-company-elisp
+**** company-elisp (company for elisp)
 #+begin_src elisp
 (use-package sly
-  :straight t
+  :ensure t
   )
 #+end_src
 
-company-org-roam
-#+begin_src elisp
-(use-package company-org-roam
-  :straight (:host github :repo "org-roam/company-org-roam")
-  :config
-  (push 'company-org-roam company-backends)
-)
-#+end_src
-
-company-auctex
-#+begin_src elisp
-(use-package company-auctex
-  :straight t
-  :config
-  (company-auctex-init))
-#+end_src
-
-** orderless
+*** orderless (Completion style)
 #+begin_src elisp
 (use-package orderless
-  :straight t
+  :ensure t
   :custom (completion-styles '(orderless)))
 #+end_src
 
-** which-key
+** which-key (Display keybindings)
 #+begin_src elisp
 (use-package which-key
-  :straight t
+  :ensure t
   :diminish
   :config
   (which-key-mode)
   (setq which-key-idle-delay 0)
   )
 #+end_src
-** multiple-cursors 多光标
+
+** multiple-cursors
 #+begin_src elisp
 (use-package multiple-cursors
-  :straight t
+  :ensure t
   :bind
   ("s-d" . mc/mark-next-like-this)
   ("M-s-<down>" . mc/mark-next-lines)
@@ -294,50 +281,50 @@ company-auctex
   )
 #+end_src
 
-** keycast
-#+begin_src elisp
-(use-package keycast
-  :straight t)
-(with-eval-after-load 'keycast
-  (define-minor-mode keycast-mode
-    "Show current command and its key binding in the mode line."
-    :global t
-    (if keycast-mode
-        (add-hook 'pre-command-hook 'keycast--update t)
-      (remove-hook 'pre-command-hook 'keycast--update)))
+# ** keycast
+# #+begin_src elisp
+# (use-package keycast
+#   :straight t)
+# (with-eval-after-load 'keycast
+#   (define-minor-mode keycast-mode
+#     "Show current command and its key binding in the mode line."
+#     :global t
+#     (if keycast-mode
+#         (add-hook 'pre-command-hook 'keycast--update t)
+#       (remove-hook 'pre-command-hook 'keycast--update)))
 
-  (add-to-list 'global-mode-string '("" mode-line-keycast)))
-#+end_src
+#   (add-to-list 'global-mode-string '("" mode-line-keycast)))
+# #+end_src
 
-** diff-hl
-#+begin_src elisp
-(use-package diff-hl
-  :straight t
-  :config
-  (global-diff-hl-mode))
-#+end_src
+# ** diff-hl
+# #+begin_src elisp
+# (use-package diff-hl
+#   :straight t
+#   :config
+#   (global-diff-hl-mode))
+# #+end_src
 
-** tree-sitter
-#+begin_src elisp
-(use-package tree-sitter-langs
-  :straight t)
+# ** tree-sitter
+# #+begin_src elisp
+# (use-package tree-sitter-langs
+#   :straight t)
 
-(use-package tree-sitter
-  :straight t
-  :hook (((python-mode) . tree-sitter-mode)
-         ((python-mode) . tree-sitter-hl-mode)))
-#+end_src
+# (use-package tree-sitter
+#   :straight t
+#   :hook (((python-mode) . tree-sitter-mode)
+#          ((python-mode) . tree-sitter-hl-mode)))
+# #+end_src
 
-** csv-mode
-#+begin_src elisp
-(use-package csv-mode
-  :straight t)
-#+end_src
+# ** csv-mode
+# #+begin_src elisp
+# (use-package csv-mode
+#   :straight t)
+# #+end_src
 
-** ibuffer
+** ibuffer (Buffer management)
 #+begin_src elisp
 (use-package ibuffer
-  :straight t
+  :ensure t
   :bind
   ("C-x C-b" . ibuffer)
   :config
@@ -361,11 +348,10 @@ company-auctex
   )
 #+end_src
 
-* System Utilities Emacs 系统工具
+* System Utilities Emacs
 ** treemacs
 #+begin_src elisp
 (use-package treemacs
-  :straight t
   :ensure t
   :defer t
   :init
@@ -448,22 +434,18 @@ company-auctex
         ("C-x t M-t" . treemacs-find-tag)))
 
 (use-package treemacs-projectile
-  :straight t
   :after (treemacs projectile)
   :ensure t)
 
 (use-package treemacs-icons-dired
-  :straight t
   :hook (dired-mode . treemacs-icons-dired-enable-once)
   :ensure t)
 
 (use-package treemacs-magit
-  :straight t
   :after (treemacs magit)
   :ensure t)
 
 (use-package treemacs-persp ;;treemacs-perspective if you use perspective.el vs. persp-mode
-  :straight t
   :after (treemacs persp-mode) ;;or perspective vs. persp-mode
   :ensure t
   :config (treemacs-set-scope-type 'Perspectives))
@@ -472,7 +454,7 @@ company-auctex
 ** magit
 #+begin_src elisp
 (use-package magit
-  :straight t
+  :ensure t
   )
 
 ;; a fix for project-switch-commands to be void
@@ -480,57 +462,65 @@ company-auctex
 (setq project-switch-commands t)
 #+end_src
 
-** vterm and multi-vterm
+** git-gutter
 #+begin_src elisp
-(with-system darwin
-  (use-package vterm
-    :straight t
-    )
-  (use-package multi-vterm
-    :straight t)
-  )
-#+end_src
-
-** benchmark-init
-#+begin_src elisp
-(use-package benchmark-init
-  :straight t
-  :config
-  ;; To disable collection of benchmark data after init is done.
-  (add-hook 'after-init-hook 'benchmark-init/deactivate)
-  )
-#+end_src
-
-** pocket-reader
-#+begin_src elisp
-(use-package pocket-reader
-  :straight t
+(use-package git-gutter
   :ensure t
-  )
+  :config
+  (global-git-gutter-mode +1))
 #+end_src
+# ** vterm and multi-vterm
+# #+begin_src elisp
+# (with-system darwin
+#   (use-package vterm
+#     :straight t
+#     )
+#   (use-package multi-vterm
+#     :straight t)
+#   )
+# #+end_src
 
-* Keyboard shortcuts 键盘快捷键
+# ** benchmark-init
+# #+begin_src elisp
+# (use-package benchmark-init
+#   :straight t
+#   :config
+#   ;; To disable collection of benchmark data after init is done.
+#   (add-hook 'after-init-hook 'benchmark-init/deactivate)
+#   )
+# #+end_src
+
+# ** pocket-reader
+# #+begin_src elisp
+# (use-package pocket-reader
+#   :straight t
+#   :ensure t
+#   )
+# #+end_src
+
+* Keyboard shortcuts
 #+begin_src elisp
 (global-set-key (kbd "C-c t") 'toggle-transparency)
+
 ;; Change the behavior of =<home>= and =<end>=.
 (global-set-key (kbd "<home>") 'beginning-of-line)
 (global-set-key (kbd "<end>") 'end-of-line)
-#+end_src
-取消让 emacs 自动最小化的 C-z
-#+begin_src elisp
+
+;; Disable C-z to minimize
 (global-unset-key (kbd "C-z"))
 #+END_SRC
 
-* Basic Setting 基本设置
+* Basic Setting
 ** User Name
 #+begin_src elisp
 (setq user-full-name "Qun Gu")
 #+end_src
 ** Environment Variables
 #+begin_src elisp
-(straight-use-package 'exec-path-from-shell)
-(when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+  (use-package exec-path-from-shell
+    :ensure t)
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
 #+end_src
 ** Save History
 #+begin_src elisp
@@ -552,14 +542,21 @@ company-auctex
         insert-directory-program "/usr/local/bin/gls"
         dired-listing-switches "-aBhl --group-directories-first"))
 #+end_src
+** dired+
+
 ** select delete
-打开”选择删除模式” —— 选择一块区域之后，键入新的内容时会把已选区域内容删掉。
 #+begin_src elisp
+;; Inserting text while the mark is active causes the selected text to be deleted first
 (delete-selection-mode 1)
 #+END_SRC
+** Global auto revert mode
+#+begin_src elisp
+;; keep the buffer up-to-date
+(global-auto-revert-mode t)
+#+end_src
 
-* Programming Language Supports 编程语言支持
-** Org
+* Language Supports
+** org
 #+begin_src elisp
 (with-eval-after-load 'org
   (require 'org-tempo)
@@ -569,7 +566,6 @@ company-auctex
   (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
   (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
   (toggle-word-wrap 1)
-  (toggle-truncate-lines 1)
   (modify-syntax-entry ?_ "w")
 
   (defun insert-zero-width-space () (interactive) (insert-char #x200b))
@@ -599,9 +595,10 @@ company-auctex
   (setq org-highlight-latex-and-related '(latex script entities))
   (setq org-latex-pdf-process
 	'("xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
-          "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
-  ;; org-agenda 里，隐藏/显示 Closed 任务
+	  "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"
+      "xelatex -shell-escape -interaction nonstopmode -output-directory %o %f"))
+  
+  ;; Hide Closed tasks in org-agenda
   (defun org-toggle-agenda-show-closed-logs ()
     (interactive)
     (if (equal (car org-agenda-log-mode-items) 'closed)
@@ -609,42 +606,53 @@ company-auctex
       (setq org-agenda-log-mode-items '(closed clock)))
     (org-agenda-redo)
     )
+  
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
-  ;; 配置任务文件
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/" "\\.org$"))
-  ;; 设置 TODO 状态可能性
+  
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/org/" "\\.org$"))
+  
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
-  ;; 当关闭项目时自动记录时间
+  
+  ;; automatic track done time
   (setq org-log-done 'time)
+
   ;; 显示已经完成的任务
   (setq org-agenda-start-with-log-mode '(closed))
-  ;; 习惯完成总是显示绿色
+  
   (setq org-habit-show-done-always-green t)
-  ;; 习惯图从第 80 格开始显示
+  
   (setq org-habit-graph-column 80)
-  ;; 显示每天习惯
+  
   (setq org-habit-show-all-today t)
-  ;;
+  
   (setq org-agenda-archives-mode t)
+  
+  (setq org_notes (concat (getenv "HOME") "SynologyDrive/notes/"))
+  
+  (global-set-key (kbd "C-c l") #'org-store-link)
+  (global-set-key (kbd "C-c a") #'org-agenda)
+  (global-set-key (kbd "C-c c") #'org-capture)
+  
   (custom-theme-set-faces
    'user
-   '(variable-pitch ((t (:family "CMU Bright")))))
+   '(variable-pitch ((t (:family "CMU Bright"))))
+   )
   )
 #+end_src
 
-** org-pomodoro
-#+begin_src elisp
-(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
-(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
-(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
-#+end_src
+# ** org-pomodoro
+# #+begin_src elisp
+# (setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
+# (setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+# (setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+# (setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
+# #+end_src
 
 ** org-download
 #+begin_src elisp
 (use-package org-download
-  :straight t
+  :ensure t
   :after org
   :custom
   (org-download-method 'directory)
@@ -659,18 +667,24 @@ company-auctex
   (require 'org-download))
 #+end_src
 
-** emacs-sqlite3
+*** org-capture
 #+begin_src elisp
-(with-system windows-nt
-  (use-package emacsql-sqlite3
-    :straight t)
+(setq org-capture-templates
+  '(
+    ("j" "Journal" entry (file+olp+datetree "~/SynologyDrive/org/worklog.org")
+	   "* %U %?\n  %i")
+    ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org")
+     "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%:initial\n#+END_QUOTE\n\n\n%?")
+    ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
+     "* %? [[%:link][%:description]] \nCaptured On: %U")
+    )
   )
 #+end_src
 
-** org-roam
+*** org-roam
 #+begin_src elisp
 (use-package org-roam
-  :straight t
+  :ensure t
   :init
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
@@ -691,10 +705,11 @@ company-auctex
          ("C-c n d" . org-roam-dailies-goto-today)
          )
   :config
+  ;; (setq org-roam-database-connector 'sqlite3)
   (org-roam-db-autosync-mode)
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
-                 (display-buffer-in-side-window)
+"* %?\nEntered on %U\n  %i\n  %a"                 (display-buffer-in-side-window)
                  (side . right)
                  (slot . 0)
                  (window-width . 0.33)
@@ -703,24 +718,27 @@ company-auctex
   )
 #+end_src
 
-** org-roam-ui
-#+begin_src elisp
-(use-package org-roam-ui
-  :straight
-    (:host github :repo "org-roam/org-roam-ui" :branch "main" :files ("*.el" "out"))
-    :after org-roam
-;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
-;;         a hookable mode anymore, you're advised to pick something yourself
-;;         if you don't care about startup time, use
-;;  :hook (after-init . org-roam-ui-mode)
-    :config
-    (setq org-roam-ui-sync-theme t
-          org-roam-ui-follow t
-          org-roam-ui-update-on-save t
-          org-roam-ui-open-on-start t))
-#+end_src
 
-** org-superstar
+
+
+
+# ** org-roam-ui
+# #+begin_src elisp
+# (use-package org-roam-ui
+#   :ensure t
+#   :after org-roam
+# ;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+# ;;         a hookable mode anymore, you're advised to pick something yourself
+# ;;         if you don't care about startup time, use
+# ;;  :hook (after-init . org-roam-ui-mode)
+#   :config
+#   (setq org-roam-ui-sync-theme t
+#         org-roam-ui-follow t
+#         org-roam-ui-update-on-save t
+#         org-roam-ui-open-on-start t))
+# #+end_src
+
+*** org-superstar
 ✀✁✂✃✄✅✆✇✈✉✊✋✌✍✎✏
 ✐✑✒✓✔✕✖✗✘✙✚✛✜✝✞✟
 ✠✡✢✣✤✥✦✧✨✩✪✫✬✭✮✯
@@ -753,21 +771,21 @@ company-auctex
 ✡✳✴❄❇❓❗❣❤➡️
 #+begin_src elisp
 (use-package org-superstar
-  :straight t
+  :ensure t
   :config
   (add-hook 'org-mode-hook (lambda() (org-superstar-mode 1)))
   (setq org-superstar-item-bullet-alist
-	'((?* . ?★)
-	  (?+ . ?❒)
-      (?- . ?➛))
-	)
+	 '((?* . ?★)
+	   (?+ . ?❒)
+     (?- . ?➛))
+	 )
   )
 #+end_src
 
-** org-super-agenda
+*** org-super-agenda
 #+begin_src elisp
 (use-package org-super-agenda
-  :straight t
+  :ensure t
   :config
   (let ((org-super-agenda-groups
 	 '((:log t)  ; Automatically named "Log"
@@ -802,24 +820,32 @@ company-auctex
   )
 #+end_src
 
-** org-present
+*** org-ref
 #+begin_src elisp
-(use-package org-present
-  :straight t
+(use-package org-ref
+  :ensure t
+  :config
+  (require 'org-ref-helm)
+  (define-key org-mode-map (kbd "C-c ]") 'org-ref-insert-link)
   )
 #+end_src
 
-** LaTeX
+*** org-protocol
+#+begin_src elisp
+(require 'org-protocol)
+#+end_src
 
-latex engine and options
+** LaTeX
+*** latex engine and options
 #+begin_src elisp
 (setq TeX-engine 'xetex)
 (setq TeX-command-extra-options "-shell-escape")
 #+end_src
-auctex
+
+*** auctex
 #+begin_src elisp
 (use-package auctex
-  :straight t
+  :ensure t
   :defer t
   )
 (add-hook 'LaTeX-mode-hook 
@@ -829,23 +855,6 @@ auctex
             (setq TeX-save-query nil)
             (setq TeX-show-compilation t)))
 #+end_src
-
-CDLaTeX
-#+begin_src elisp
-(use-package cdlatex
-  :straight t
-  :defer t
-  )
-#+end_src
-
-zotxt
-#+begin_src elisp
-(use-package zotxt
-  :straight t
-  :defer t  
-  )
-#+end_src
-
 
 #+begin_src elisp
 (defcustom TeX-buf-close-at-warnings-only t
@@ -924,10 +933,6 @@ environments."
                 LaTeX-indent-environment-list)))
 
 (custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
  '(LaTeX-indent-environment-list
    '(("minted" current-indentation)
      ("verbatim" current-indentation)
@@ -946,4 +951,143 @@ environments."
      ("equation*")
      ("picture")
      ("tabbing"))))
+#+end_src
+
+# CDLaTeX
+# #+begin_src elisp
+# (use-package cdlatex
+#   :straight t
+#   :defer t
+#   )
+# #+end_src
+** bib
+*** bibtex-completion
+#+begin_src elisp
+(setq bibtex-completion-bibliography '("~/SynologyDrive/Library/bib/mybib.bib"))
+(setq bibtex-completion-pdf-field "file")
+(setq bibtex-completion-notes-path "~/SynologyDrive/notes")
+(setq org-cite-follow-processor 'helm-bibtex-org-cite-follow)
+(setq bibtex-completion-display-formats
+    '((article       . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${journal:40}")
+      (inbook        . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} Chapter ${chapter:32}")
+      (incollection  . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (inproceedings . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*} ${booktitle:40}")
+      (t             . "${=has-pdf=:1}${=has-note=:1} ${=type=:3} ${year:4} ${author:36} ${title:*}")))
+(setq bibtex-completion-additional-search-fields '(keywords))
+(setq bibtex-completion-pdf-symbol "#")
+(setq bibtex-completion-notes-symbol "N")
+(setq bibtex-completion-pdf-open-function
+ (lambda (fpath)
+	(call-process
+	 "C\:\\Users\\guqun\\AppData\\Local\\SumatraPDF\\SumatraPDF.exe" nil 0 nil "-reuse-instance" fpath)))
+#+end_src
+
+*** zotxt
+#+begin_src elisp
+(use-package zotxt
+  :ensure t
+  :defer t
+  )
+(add-hook 'org-mode-hook (lambda () (org-zotxt-mode 1)))
+(define-key org-mode-map
+  (kbd "C-c \" \"") (lambda () (interactive)
+                      (org-zotxt-insert-reference-link '(4))))
+#+end_src
+
+** pdf-tools
+#+begin_src elisp
+(pdf-tools-install)
+(setq-default pdf-view-display-size 'fit-height)
+#+end_src
+
+** markdown
+#+begin_src elisp
+(use-package markdown-mode
+  :ensure t)
+#+end_src
+
+** yaml
+#+begin_src elisp
+(use-package yaml-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.yml\\'" . yaml-mode))
+  )
+#+end_src
+* News Reading
+** elfeed
+#+begin_src elisp
+(use-package elfeed
+  :ensure t
+  :config
+  (setq elfeed-feeds
+	'("http://arxiv.org/rss/cs.CV"
+	  "http://arxiv.org/rss/cs.IR"))
+
+  (setq elfeed-show-mode-hook
+      (lambda ()
+	(set-face-attribute 'variable-pitch (selected-frame) :font (font-spec :size 36))
+	(setq fill-column 120)
+	(setq elfeed-show-entry-switch #'my-show-elfeed)))
+
+  (defun my-show-elfeed (buffer)
+    (with-current-buffer buffer
+      (setq buffer-read-only nil)
+      (goto-char (point-min))
+      (re-search-forward "\n\n")
+      (fill-individual-paragraphs (point) (point-max))
+      (setq buffer-read-only t))
+    (switch-to-buffer buffer))
+  )
+#+end_src
+* Blog
+** org2blog
+#+begin_src elisp
+(use-package org2blog
+             :ensure t)
+(setq org2blog/wp-blog-alist
+      '(("guqun"
+         :url "http://galoisgu.com/wordpress/xmlrpc.php"
+         :username "guqun"))
+      org2blog/wp-show-post-in-browser 'show
+      org2blog/wp-use-wp-latex nil)
+#+end_src
+** ox-hugo
+#+begin_src elisp
+(use-package ox-hugo
+  :ensure t
+  :after ox
+  :config
+  (setq org-hugo-base-dir "~/SynologyDrive/myhugo/")
+  (setq org-hugo-default-section-directory "post")
+  )
+#+end_src
+
+** easy-hugo
+#+begin_src elisp
+(use-package easy-hugo
+  :ensure t
+  :init
+  (setq easy-hugo-basedir "~/SynologyDrive/myhugo/")
+  (setq easy-hugo-url "http://galoisgu.com/hugo/")
+  (setq easy-hugo-sshdomain "aliyun")
+  (setq easy-hugo-root "/var/www/html/hugo/")
+  (setq easy-hugo-previewtime "300")
+  (setq easy-hugo-default-ext ".org")
+  (setq easy-hugo-org-header t)
+  (define-key global-map (kbd "C-c C-e") 'easy-hugo)
+  )
+#+end_src
+
+* Remote Editing
+#+begin_src elisp
+(setq tramp-verbose 6)
+#+end_src
+* Post Setting
+#+begin_src elisp
+(set-fontset-font "fontset-default" '(#x2010 . #x2027) "宋体" nil 'prepend)
+(load-theme 'doom-zenburn t)
+(require 'server)
+(or (eq (server-running-p) t)
+    (server-start))
 #+end_src
