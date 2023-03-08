@@ -123,6 +123,11 @@
                   (calendar-absolute-from-gregorian (list month day year)))))
         'font-lock-face 'calendar-iso-week-face))
 
+(setq calendar-view-diary-initially-flag t
+      diary-number-of-entries 7
+      diary-display-function #'diary-fancy-display)
+(add-hook 'calendar-today-visible-hook 'calendar-mark-today)
+
 (use-package mini-frame
   :ensure t
   )
@@ -141,6 +146,8 @@
 
 (use-package counsel
   :ensure t
+  :config
+  (setq ivy-use-selectable-prompt t)
   :bind
   ("C-x C-f" . counsel-find-file)
   ("<f1> f" . counsel-describe-function)
@@ -231,6 +238,8 @@
 	    (lambda ()
 	      (ibuffer-switch-to-saved-filter-groups "DEFAULT")))
   )
+
+(require 'smartparens-config)
 
 (use-package treemacs
   :ensure t
@@ -380,6 +389,12 @@
 ;; keep the buffer up-to-date
 (global-auto-revert-mode t)
 
+(use-package writeroom-mode
+  :ensure t)
+
+(use-package paredit
+  :ensure t)
+
 (with-eval-after-load 'org
   (require 'org-tempo)
   (setq org-startup-indented t)
@@ -432,7 +447,7 @@
   ;; zotero
   (org-link-set-parameters "zotero" :follow (lambda (zpath) (browse-url(format "zotero:%s" zpath))))
   
-  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/org/" "\\.org$"))
+  (setq org-agenda-files (directory-files-recursively "~/SynologyDrive/roam/worklog/" "\\.org$"))
   
   (setq org-todo-keywords '((sequence "TODO(t)" "NEXT(n)" "ACTIVE(a)" "|" "DONE(d)" "CANCEL(c)")))
   
@@ -441,26 +456,33 @@
 
   ;; 显示已经完成的任务
   (setq org-agenda-start-with-log-mode '(closed))
-  
   (setq org-habit-show-done-always-green t)
-  
   (setq org-habit-graph-column 80)
-  
   (setq org-habit-show-all-today t)
-  
   (setq org-agenda-archives-mode t)
   
   (setq org_notes (concat (getenv "HOME") "SynologyDrive/notes/"))
-  
   (global-set-key (kbd "C-c l") #'org-store-link)
   (global-set-key (kbd "C-c a") #'org-agenda)
   (global-set-key (kbd "C-c c") #'org-capture)
+  
+;;  (setq org-refile-use-outline-path 'file)
+;;  (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+  (setq org-refile-targets '((nil :maxlevel . 9)
+                                (org-agenda-files :maxlevel . 9)))
+  (setq org-outline-path-complete-in-steps nil)         ; Refile in a single go
+  (setq org-refile-use-outline-path t)                  ; Show full paths for refiling
   
   (custom-theme-set-faces
    'user
    '(variable-pitch ((t (:family "CMU Bright"))))
    )
   )
+
+(setq org-pomodoro-start-sound "~/.emacs.d/sounds/focus_bell.wav")
+(setq org-pomodoro-short-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-long-break-sound "~/.emacs.d/sounds/three_beeps.wav")
+(setq org-pomodoro-finished-sound "~/.emacs.d/sounds/meditation_bell.wav")
 
 (use-package org-download
   :ensure t
@@ -479,11 +501,11 @@
 
 (setq org-capture-templates
   '(
-    ("j" "Journal" entry (file+olp+datetree "~/SynologyDrive/org/worklog.org")
-	   "* %U %?\n  %i")
-    ("p" "org-protocol" entry (file+headline "~/SynologyDrive/org/inbox.org")
+    ("d" "TODO" entry (file+headline "~/SynologyDrive/roam/worklog/todo.org" "Tasks for Today")
+     "* %?\nCaptured: %U")
+    ("p" "org-protocol" entry (file+headline "~/SynologyDrive/roam/worklog/inbox.org")
      "* %^{Title}\nSource: %u, %c\n #+BEGIN_QUOTE\n%:initial\n#+END_QUOTE\n\n\n%?")
-    ("l" "org-protocol link" entry (file "~/SynologyDrive/org/inbox.org")
+    ("l" "org-protocol link" entry (file "~/SynologyDrive/roam/worklog/inbox.org")
      "* %? [[%:link][%:description]] \nCaptured On: %U")
     )
   )
@@ -494,12 +516,10 @@
   (setq org-roam-v2-ack t)
   (setq org-roam-db-update-on-save t)
   (setq org-roam-directory "~/SynologyDrive/roam/")
+  (setq org-roam-dailies-directory "worklog/")
   (setq org-id-extra-files (directory-files-recursively org-roam-directory "\.org$"))
   :custom
   (org-roam-completion-everywhere t)
-  (org-roam-dailies-capture-templates
-   '(("d" "default" entry "* %U %?" :if-new
-  (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
@@ -511,6 +531,16 @@
          )
   :config
   ;; (setq org-roam-database-connector 'sqlite3)
+  (setq
+   org-roam-dailies-capture-templates
+   '(
+     ("t" "task" entry
+      "* %?\nSCHEDULED: %T"
+      :target
+      (file+datetree "journal.org" day)
+      )
+     )
+   )
   (org-roam-db-autosync-mode)
   (add-to-list 'display-buffer-alist
                '("\\*org-roam\\*"
@@ -520,6 +550,20 @@
                  (window-width . 0.33)
                  (window-parameters . ((no-other-window . t)
                                        (no-delete-other-windows . t)))))
+  )
+
+(use-package org-roam-ui
+  :ensure t
+  :after org-roam
+;;         normally we'd recommend hooking orui after org-roam, but since org-roam does not have
+;;         a hookable mode anymore, you're advised to pick something yourself
+;;         if you don't care about startup time, use
+;;  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow nil
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start nil)
   )
 
 (use-package org-superstar
@@ -536,36 +580,19 @@
 (use-package org-super-agenda
   :ensure t
   :config
-  (let ((org-super-agenda-groups
-	 '((:log t)  ; Automatically named "Log"
-           (:name "Schedule"
-                  :time-grid t)
-           (:name "Today"
-                  :scheduled today)
-           (:habit t)
-           (:name "Due today"
-                  :deadline today)
-           (:name "Overdue"
-                  :deadline past)
-           (:name "Due soon"
-                  :deadline future)
-           (:name "Unimportant"
-                  :todo ("SOMEDAY" "MAYBE" "CHECK" "TO-READ" "TO-WATCH")
-                  :order 100)
-           (:name "Waiting..."
-                  :todo "WAITING"
-                  :order 98)
-           (:name "Scheduled earlier"
-                  :scheduled past))))
-    (org-agenda-list))
-  (add-to-list 'org-agenda-custom-commands
-               '("W" "Weekly review"
-		 agenda ""
-		 ((org-agenda-start-day "-14d")
-                  (org-agenda-span 14)
-                  (org-agenda-start-on-weekday 1)
-                  (org-agenda-start-with-log-mode '(closed))
-                  (org-agenda-skip-function '(org-agenda-skip-entry-if 'notregexp "^\\*\\* DONE ")))))
+  (setq org-super-agenda-groups
+	'(
+	  (:name "Scheduled"
+		 :time-grid t
+		 )
+	  (:name "Done"
+		 :todo "DONE")
+	  )
+	)
+  (setq
+   org-agenda-skip-scheduled-if-done t
+   org-agenda-skip-deadline-if-done t
+   org-agenda-compact-blocks t)
   )
 
 (use-package org-ref
@@ -583,13 +610,16 @@
 (use-package auctex
   :ensure t
   :defer t
+  :config
+  (setq-default TeX-master nil)
+  (setq TeX-parse-self t)
   )
 (add-hook 'LaTeX-mode-hook 
           (lambda()
-            (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape %t" TeX-run-TeX nil t))
-            (setq TeX-command-default "XeLaTeX")
-            (setq TeX-save-query nil)
-            (setq TeX-show-compilation t)))
+             (add-to-list 'TeX-command-list '("XeLaTeX" "%`xelatex%(mode)%' -synctex=1 %t" TeX-run-TeX nil t))
+             (setq TeX-command-default "XeLaTeX")
+             (setq TeX-save-query nil)
+             (setq TeX-show-compilation nil)))
 
 (defcustom TeX-buf-close-at-warnings-only t
   "Close TeX buffer if there are only warnings."
@@ -686,6 +716,34 @@ environments."
      ("picture")
      ("tabbing"))))
 
+(setq reftex-label-alist '((nil ?e nil "~\\eqref{%s}" nil nil)))
+(setq TeX-style-private (expand-file-name "~/.emacs.d/auctex/styles"))
+(setq font-latex-match-reference-keywords
+      '(
+	("citeauthor" "[{")
+	("citep" "[{")))
+
+(add-to-list 'insert-pair-alist (list ?\$ ?\$))
+(global-set-key (kbd "M-$") 'insert-pair)
+
+(use-package cdlatex
+  :ensure t
+  :config
+  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
+  (setq cdlatex-paired-parens "$[{(|")
+  )
+
+(setq TeX-view-program-list '(("SumatraPDF"
+  ("\"C\:/Users/guqun/AppData/Local/SumatraPDF/SumatraPDF.exe\" -reuse-instance"
+   (mode-io-correlate " -forward-search %b %n")
+   " %o"))))
+(setq TeX-view-program-selection '(((output-dvi style-pstricks)
+  "dvips and start")
+ (output-dvi "Yap")
+ (output-pdf "SumatraPDF")
+ (output-html "start")))
+(setq TeX-source-correlate-mode t)
+
 (setq bibtex-completion-bibliography '("~/SynologyDrive/Library/bib/mybib.bib"))
 (setq bibtex-completion-pdf-field "file")
 (setq bibtex-completion-notes-path "~/SynologyDrive/notes")
@@ -748,15 +806,6 @@ environments."
     (switch-to-buffer buffer))
   )
 
-(use-package org2blog
-             :ensure t)
-(setq org2blog/wp-blog-alist
-      '(("guqun"
-         :url "http://galoisgu.com/wordpress/xmlrpc.php"
-         :username "guqun"))
-      org2blog/wp-show-post-in-browser 'show
-      org2blog/wp-use-wp-latex nil)
-
 (use-package ox-hugo
   :ensure t
   :after ox
@@ -769,6 +818,7 @@ environments."
   :ensure t
   :init
   (setq easy-hugo-basedir "~/SynologyDrive/myhugo/")
+  (setq easy-hugo-postdir "content/post/")
   (setq easy-hugo-url "http://galoisgu.com/hugo/")
   (setq easy-hugo-sshdomain "aliyun")
   (setq easy-hugo-root "/var/www/html/hugo/")
@@ -778,10 +828,8 @@ environments."
   (define-key global-map (kbd "C-c C-e") 'easy-hugo)
   )
 
-(setq tramp-verbose 6)
-
 (set-fontset-font "fontset-default" '(#x2010 . #x2027) "宋体" nil 'prepend)
-(load-theme 'doom-zenburn t)
+(load-theme 'doom-one t)
 (require 'server)
 (or (eq (server-running-p) t)
     (server-start))
