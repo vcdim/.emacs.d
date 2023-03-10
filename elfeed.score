@@ -1,0 +1,22 @@
+;;; Elfeed score file                                     -*- lisp -*-
+((version 10)
+ ("title")
+ ("content")
+ ("title-or-content"
+  (:text "uncertainty" :title-value 50 :content-value 10 :type s)
+  (:text ".*[- ]ODE[- s].*" :title-value 100 :content-value 20 :type R)
+  (:text ".*[- ]random matrix[- s].*" :title-value 100 :content-value 20 :type r)
+  (:text ".*[- ]dirichlet[- s].*" :title-value 100 :content-value 20 :type r)
+  (:text ".*[- ]stein[- s].*" :title-value 100 :content-value 20 :type r)
+  (:text ".*[- ]beamforming[- s].*" :title-value -600 :content-value -50 :type r)
+  (:text "disease" :title-value -100 :content-value -10 :type s))
+ ("tag")
+ ("authors"
+  (:text "Stefano Ermon" :value 300 :type S)
+  (:text "David Silver" :value 300 :type S)
+  (:text "Rezende" :value 300 :type S))
+ ("feed")
+ ("link")
+ ("udf")
+ (mark -600)
+ ("adjust-tags"))
