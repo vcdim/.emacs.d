@@ -58,6 +58,13 @@
   (doom-themes-visual-bell-config)
   )
 
+(use-package linum-relative
+  :ensure t
+  :config
+  (setq linum-relative-current-symbol "->")
+  (setq linum-relative-backend 'display-line-numbers-mode)  
+)
+
 (use-package doom-modeline
   :ensure t
   :config
@@ -80,7 +87,8 @@
       "Iosevka NFM"
       "Lekton NFM"
       "CodeNewRoman NFM"
-      "FantasqueSansMono NFM")
+      "FantasqueSansMono NFM"
+      "CMU Typewriter Text")
      ()
      ()))
   :config
@@ -215,6 +223,11 @@
   ("C-S-<mouse-1>" . mc/add-cursor-on-click)
   )
 
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode))
+
 (use-package ibuffer
   :ensure t
   :bind
@@ -239,7 +252,16 @@
 	      (ibuffer-switch-to-saved-filter-groups "DEFAULT")))
   )
 
-(require 'smartparens-config)
+(use-package smartparens-config
+  :ensure smartparens
+  :config (progn (show-smartparens-global-mode t)))
+(sp-local-pair 'latex-mode "\{" "\}")
+(sp-local-pair 'latex-mode "\|" "\|")
+
+(setq ispell-program-name "hunspell")
+(setq ispell-hunspell-dict-paths-alist '(("en_US" "c:/ProgramData/chocolatey/bin/dictpath/en_US.aff")))
+(setq ispell-local-dictionary "en_US")
+(setq ispell-local-dictionary-alist '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
 
 (use-package treemacs
   :ensure t
@@ -343,15 +365,9 @@
 (use-package magit
   :ensure t
   )
-
 ;; a fix for project-switch-commands to be void
 ;; Reference: https://libredd.it/r/emacs/comments/po9cfj/magit_commands_broken/?sort=new
 (setq project-switch-commands t)
-
-(use-package git-gutter
-  :ensure t
-  :config
-  (global-git-gutter-mode +1))
 
 (global-set-key (kbd "C-c t") 'toggle-transparency)
 
@@ -371,6 +387,7 @@
 
 (savehist-mode 1)
 (desktop-save-mode 1)
+(setq desktop-load-locked-desktop t)
 (recentf-mode 1)
 
 (setq backup-directory-alist
@@ -388,6 +405,8 @@
 
 ;; keep the buffer up-to-date
 (global-auto-revert-mode t)
+
+(setq delete-by-moving-to-trash t)
 
 (use-package writeroom-mode
   :ensure t)
@@ -415,7 +434,6 @@
   (setq org-emphasis-alist
         '(("*" (bold :foreground "magenta"))
           ("/" (italic :foreground "cyan"))
-          ("_" underline)
           ("=" org-verbatim verbatim)
           ("~" org-code verbatim)
           ("+" (:strike-through t)))
@@ -475,7 +493,7 @@
   
   (custom-theme-set-faces
    'user
-   '(variable-pitch ((t (:family "CMU Bright"))))
+   '(variable-pitch ((t (:family "Consolas"))))
    )
   )
 
@@ -851,7 +869,7 @@ environments."
 (setq elfeed-search-date-format '("%y-%m-%d" 10 :left))
 (setq elfeed-search-title-max-width 110)
 (setq elfeed-search-filter "@2-week-ago +unread")
-(add-hook! 'elfeed-search-mode-hook 'elfeed-update)
+(add-hook 'elfeed-search-mode-hook 'elfeed-update)
 
 (use-package elfeed-org
   :ensure t
@@ -867,6 +885,17 @@ environments."
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map)
 )
+
+(use-package org2blog
+  :ensure t
+  :config
+  (setq org2blog/wp-blog-alist
+	'(("guqun"
+           :url "http://galoisgu.com/wordpress/xmlrpc.php"
+           :username "guqun"))
+	org2blog/wp-show-post-in-browser 'show
+	org2blog/wp-use-wp-latex nil)
+  )
 
 (use-package ox-hugo
   :ensure t

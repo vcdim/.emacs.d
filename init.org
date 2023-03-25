@@ -1,7 +1,6 @@
 #+TITLE: Emacs Configuration
 #+PROPERTY: header-args:elisp :tangle ./init.el
 
-
 * Initialization
 ** Use =init.org= to manage =init.el=.
 #+begin_src elisp
@@ -81,6 +80,14 @@
   (doom-themes-visual-bell-config)
   )
 #+end_src
+#+begin_src elisp
+(use-package linum-relative
+  :ensure t
+  :config
+  (setq linum-relative-current-symbol "->")
+  (setq linum-relative-backend 'display-line-numbers-mode)  
+)
+#+end_src
 
 ** Doom-modeline
 #+begin_src elisp
@@ -109,7 +116,8 @@
       "Iosevka NFM"
       "Lekton NFM"
       "CodeNewRoman NFM"
-      "FantasqueSansMono NFM")
+      "FantasqueSansMono NFM"
+      "CMU Typewriter Text")
      ()
      ()))
   :config
@@ -305,13 +313,13 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 #   (add-to-list 'global-mode-string '("" mode-line-keycast)))
 # #+end_src
 
-# ** diff-hl
-# #+begin_src elisp
-# (use-package diff-hl
-#   :straight t
-#   :config
-#   (global-diff-hl-mode))
-# #+end_src
+** diff-hl
+#+begin_src elisp
+(use-package diff-hl
+  :ensure t
+  :config
+  (global-diff-hl-mode))
+#+end_src
 
 # ** tree-sitter
 # #+begin_src elisp
@@ -360,7 +368,19 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 ** smartparens
 # install through package-list-packages.
 #+begin_src elisp
-(require 'smartparens-config)
+(use-package smartparens-config
+  :ensure smartparens
+  :config (progn (show-smartparens-global-mode t)))
+(sp-local-pair 'latex-mode "\{" "\}")
+(sp-local-pair 'latex-mode "\|" "\|")
+#+end_src
+
+** Spell check
+#+begin_src elisp
+(setq ispell-program-name "hunspell")
+(setq ispell-hunspell-dict-paths-alist '(("en_US" "c:/ProgramData/chocolatey/bin/dictpath/en_US.aff")))
+(setq ispell-local-dictionary "en_US")
+(setq ispell-local-dictionary-alist '(("en_US" "[[:alpha:]]" "[^[:alpha:]]" "[']" nil ("-d" "en_US") nil utf-8)))
 #+end_src
 * System Utilities Emacs
 ** treemacs
@@ -470,18 +490,9 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 (use-package magit
   :ensure t
   )
-
 ;; a fix for project-switch-commands to be void
 ;; Reference: https://libredd.it/r/emacs/comments/po9cfj/magit_commands_broken/?sort=new
 (setq project-switch-commands t)
-#+end_src
-
-** git-gutter
-#+begin_src elisp
-(use-package git-gutter
-  :ensure t
-  :config
-  (global-git-gutter-mode +1))
 #+end_src
 
 # ** vterm and multi-vterm
@@ -501,17 +512,6 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 #   :straight t
 #   :config
 #   ;; To disable collection of benchmark data after init is done.
-#   (add-hook 'after-init-hook 'benchmark-init/deactivate)
-#   )
-# #+end_src
-
-# ** pocket-reader
-# #+begin_src elisp
-# (use-package pocket-reader
-#   :straight t
-#   :ensure t
-#   )
-# #+end_src
 
 * Keyboard shortcuts
 #+begin_src elisp
@@ -541,6 +541,7 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 #+begin_src elisp
 (savehist-mode 1)
 (desktop-save-mode 1)
+(setq desktop-load-locked-desktop t)
 (recentf-mode 1)
 #+end_src
 ** Backup Files
@@ -569,6 +570,11 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
 ;; keep the buffer up-to-date
 (global-auto-revert-mode t)
 #+end_src
+** Recycle Bin
+#+begin_src elisp
+(setq delete-by-moving-to-trash t)
+#+end_src
+
 ** Writeroom-mode
 #+begin_src elisp
 (use-package writeroom-mode
@@ -603,7 +609,6 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
   (setq org-emphasis-alist
         '(("*" (bold :foreground "magenta"))
           ("/" (italic :foreground "cyan"))
-          ("_" underline)
           ("=" org-verbatim verbatim)
           ("~" org-code verbatim)
           ("+" (:strike-through t)))
@@ -663,7 +668,7 @@ Execute =M-x mini-frame-mode= to open up a miniframe.
   
   (custom-theme-set-faces
    'user
-   '(variable-pitch ((t (:family "CMU Bright"))))
+   '(variable-pitch ((t (:family "Consolas"))))
    )
   )
 #+end_src
@@ -1132,9 +1137,7 @@ environments."
 (setq elfeed-search-date-format '("%y-%m-%d" 10 :left))
 (setq elfeed-search-title-max-width 110)
 (setq elfeed-search-filter "@2-week-ago +unread")
-(add-hook! 'elfeed-search-mode-hook 'elfeed-update)
-
-
+(add-hook 'elfeed-search-mode-hook 'elfeed-update)
 #+end_src
 ** elfeed-org
 #+begin_src elisp
@@ -1157,17 +1160,19 @@ environments."
 )
 #+end_src
 * Blog
-# ** org2blog
-# # #+begin_src elisp
-# # (use-package org2blog
-# #              :ensure t)
-# # (setq org2blog/wp-blog-alist
-# #       '(("guqun"
-# #          :url "http://galoisgu.com/wordpress/xmlrpc.php"
-# #          :username "guqun"))
-# #       org2blog/wp-show-post-in-browser 'show
-# #       org2blog/wp-use-wp-latex nil)
-# # #+end_src
+** org2blog
+#+begin_src elisp
+(use-package org2blog
+  :ensure t
+  :config
+  (setq org2blog/wp-blog-alist
+	'(("guqun"
+           :url "http://galoisgu.com/wordpress/xmlrpc.php"
+           :username "guqun"))
+	org2blog/wp-show-post-in-browser 'show
+	org2blog/wp-use-wp-latex nil)
+  )
+#+end_src
 
 ** ox-hugo
 #+begin_src elisp
