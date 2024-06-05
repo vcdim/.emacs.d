@@ -1,6 +1,6 @@
-elpa/
 .DS_Store
-transient/
-*~
+tramp
+auto-save-list/
+elpa/
 eshell/
-/tramp
+transient/
