@@ -141,3 +141,14 @@
 (all-the-icons-completion-mode)
 (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
 #+end_src
+
+* path
+#+begin_src elisp
+(use-package exec-path-from-shell)
+(exec-path-from-shell-initialize)
+#+end_src
+
+* vterm
+#+begin_src elisp
+(use-package vterm)
+#+end_src

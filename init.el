@@ -96,3 +96,8 @@
 (use-package all-the-icons-completion)
 (all-the-icons-completion-mode)
 (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
+
+(use-package exec-path-from-shell)
+(exec-path-from-shell-initialize)
+
+(use-package vterm)

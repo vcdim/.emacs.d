@@ -2,3 +2,4 @@ elpa/
 .DS_Store
 transient/
 *~
+eshell/
