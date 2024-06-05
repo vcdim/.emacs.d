@@ -38,6 +38,9 @@
 ;; put backup files into temp file
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+;; save emacs sessions
+(desktop-save-mode 1)
 #+end_src
 
 * Org
@@ -64,14 +67,25 @@
 |-------------------------------------------------------|
 
 #+begin_src elisp
-(let ((default-font (font-spec :name "Iosevka" :size 15))
-      (cn-font (font-spec :name "Sarasa Mono SC")))
-  (set-face-attribute 'default nil :font default-font)
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t charset cn-font)))
+(defun my/set-font ()
+  (let ((default-font (font-spec :name "Iosevka" :size 15))
+	(cn-font (font-spec :name "Sarasa Mono SC")))
+    (set-face-attribute 'default nil :font default-font)
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font t charset cn-font)))
+  )
+
+(defun my/frame-behaviours (&optional frame)
+  (with-selected-frame (or frame (selected-frame))
+    (my/set-font)
+    ))
+(add-hook 'after-make-frame-functions 'my/frame-behaviours)
+(my/frame-behaviours)
 #+end_src
 
 * magit
 #+begin_src elisp
 (use-package magit)
 #+end_src
+
+

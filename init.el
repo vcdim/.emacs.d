@@ -1,5 +1,5 @@
 (defun my/org-babel-tangle-config()
-  (when (string-equal (buffer-file-name) (expand-file-name "init.org" user-emacs-directory))
+  (when (string-equal (buffer-file-name) (expand-file-name "config.org" user-emacs-directory))
     (let ((org-confirm-babel-evaluate nil)) (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 
@@ -21,6 +21,16 @@
 ;; this is mostly for Windows
 (global-unset-key (kbd "C-z"))
 
+;; use y and n, instead of yes and no
+(setopt use-short-answers t)
+
+;; put backup files into temp file
+(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+;; save emacs sessions
+(desktop-save-mode 1)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -34,10 +44,19 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
-(let ((default-font (font-spec :name "Iosevka" :size 15))
-      (cn-font (font-spec :name "Sarasa Mono SC")))
-  (set-face-attribute 'default nil :font default-font)
-  (dolist (charset '(kana han symbol cjk-misc bopomofo))
-    (set-fontset-font t charset cn-font)))
-(set-fontset-font "fontset-default" '(#x2018 . #x2019) "Sarasa Mono SC") ;; ‘’
-(set-fontset-font "fontset-default" '(#x201c . #x201d) "Sarasa Mono SC") ;; “”
+(defun my/set-font ()
+  (let ((default-font (font-spec :name "Iosevka" :size 15))
+	(cn-font (font-spec :name "Sarasa Mono SC")))
+    (set-face-attribute 'default nil :font default-font)
+    (dolist (charset '(kana han symbol cjk-misc bopomofo))
+      (set-fontset-font t charset cn-font)))
+  )
+
+(defun my/frame-behaviours (&optional frame)
+  (with-selected-frame (or frame (selected-frame))
+    (my/set-font)
+    ))
+(add-hook 'after-make-frame-functions 'my/frame-behaviours)
+(my/frame-behaviours)
+
+(use-package magit)
