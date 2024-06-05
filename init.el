@@ -103,3 +103,5 @@
 (use-package vterm
   :init
   (setq vterm-always-compile-module t))
+
+(use-package multi-vterm)

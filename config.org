@@ -46,7 +46,7 @@
 (setq tab-always-indent 'complete)
 #+end_src
 
-* Org
+* Org Basic
 #+begin_src elisp
 ;; I like to use shift to select
 (setq org-support-shift-select t)
@@ -142,15 +142,16 @@
 (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
 #+end_src
 
-* path
+* path, vterm, and multi-vterm
 #+begin_src elisp
 (use-package exec-path-from-shell)
 (exec-path-from-shell-initialize)
-#+end_src
 
-* vterm
-#+begin_src elisp
 (use-package vterm
   :init
   (setq vterm-always-compile-module t))
+
+(use-package multi-vterm)
 #+end_src
+
+
