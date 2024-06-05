@@ -31,6 +31,13 @@
 
 ;; this is mostly for Windows
 (global-unset-key (kbd "C-z"))
+
+;; use y and n, instead of yes and no
+(setopt use-short-answers t)
+
+;; put backup files into temp file
+(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 #+end_src
 
 * Org
@@ -64,3 +71,7 @@
     (set-fontset-font t charset cn-font)))
 #+end_src
 
+* magit
+#+begin_src elisp
+(use-package magit)
+#+end_src
