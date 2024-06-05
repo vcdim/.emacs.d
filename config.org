@@ -4,7 +4,7 @@
 * Init File Management
 #+begin_src elisp
 (defun my/org-babel-tangle-config()
-  (when (string-equal (buffer-file-name) (expand-file-name "init.org" user-emacs-directory))
+  (when (string-equal (buffer-file-name) (expand-file-name "config.org" user-emacs-directory))
     (let ((org-confirm-babel-evaluate nil)) (org-babel-tangle))))
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook 'my/org-babel-tangle-config)))
 #+end_src
@@ -48,3 +48,19 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 #+end_src
+
+* Chinese Fonts
+
+|-------------------------------------------------------|
+| 中文、——，。～‘’“”？·【】「」…… 《》！¥（）       |
+| abcdedfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ |
+|-------------------------------------------------------|
+
+#+begin_src elisp
+(let ((default-font (font-spec :name "Iosevka" :size 15))
+      (cn-font (font-spec :name "Sarasa Mono SC")))
+  (set-face-attribute 'default nil :font default-font)
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t charset cn-font)))
+#+end_src
+

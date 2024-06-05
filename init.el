@@ -33,3 +33,11 @@
 (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+
+(let ((default-font (font-spec :name "Iosevka" :size 15))
+      (cn-font (font-spec :name "Sarasa Mono SC")))
+  (set-face-attribute 'default nil :font default-font)
+  (dolist (charset '(kana han symbol cjk-misc bopomofo))
+    (set-fontset-font t charset cn-font)))
+(set-fontset-font "fontset-default" '(#x2018 . #x2019) "Sarasa Mono SC") ;; ‘’
+(set-fontset-font "fontset-default" '(#x201c . #x201d) "Sarasa Mono SC") ;; “”
