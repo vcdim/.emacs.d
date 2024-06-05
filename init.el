@@ -61,3 +61,5 @@
 (my/frame-behaviors)
 
 (use-package magit)
+
+(use-package markdown-mode)
