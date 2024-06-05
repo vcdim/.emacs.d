@@ -150,5 +150,7 @@
 
 * vterm
 #+begin_src elisp
-(use-package vterm)
+(use-package vterm
+  :init
+  (setq vterm-always-compile-module t))
 #+end_src

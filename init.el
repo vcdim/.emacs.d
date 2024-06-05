@@ -100,4 +100,6 @@
 (use-package exec-path-from-shell)
 (exec-path-from-shell-initialize)
 
-(use-package vterm)
+(use-package vterm
+  :init
+  (setq vterm-always-compile-module t))
