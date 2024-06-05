@@ -105,3 +105,12 @@
   (setq vterm-always-compile-module t))
 
 (use-package multi-vterm)
+
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(setq ibuffer-expert t)
+
+(use-package diredfl)
+(setq diredfl-global-mode t)
+
+(use-package treemacs)
+(global-set-key (kbd "C-x t t") 'treemacs)

@@ -153,3 +153,18 @@
 
 (use-package multi-vterm)
 #+end_src
+
+* ibuffer, diredfl
+#+begin_src elisp
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(setq ibuffer-expert t)
+
+(use-package diredfl)
+(setq diredfl-global-mode t)
+#+end_src
+
+* treemacs
+#+begin_src elisp
+(use-package treemacs)
+(global-set-key (kbd "C-x t t") 'treemacs)
+#+end_src
