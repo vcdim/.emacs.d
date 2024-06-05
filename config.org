@@ -41,6 +41,9 @@
 ;; put backup files into temp file
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
+
+;; change the tab behavior
+(setq tab-always-indent 'complete)
 #+end_src
 
 * Org
@@ -95,4 +98,46 @@
 * markdown-mode
 #+begin_src elisp
 (use-package markdown-mode)
+#+end_src
+
+* vertico
+#+begin_src elisp
+(use-package vertico)
+(vertico-mode)
+
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+#+end_src
+
+* corfu
+#+begin_src elisp
+(use-package corfu)
+(global-corfu-mode)
+#+end_src
+
+* orderless
+#+begin_src elisp
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+#+end_src
+
+* marginalia
+#+begin_src elisp
+(use-package marginalia)
+(marginalia-mode)
+#+end_src
+
+* all-the-icons-completion
+#+begin_src elisp
+(use-package all-the-icons-completion)
+(all-the-icons-completion-mode)
+(add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
 #+end_src

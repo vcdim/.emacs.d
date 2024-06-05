@@ -31,6 +31,9 @@
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
+;; change the tab behavior
+(setq tab-always-indent 'complete)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -66,3 +69,30 @@
 (use-package magit)
 
 (use-package markdown-mode)
+
+(use-package vertico)
+(vertico-mode)
+
+(use-package vertico-directory
+  :after vertico
+  :ensure nil
+  :bind (:map vertico-map
+              ("RET" . vertico-directory-enter)
+              ("DEL" . vertico-directory-delete-char)
+              ("M-DEL" . vertico-directory-delete-word))
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+
+(use-package corfu)
+(global-corfu-mode)
+
+(use-package orderless
+  :custom
+  (completion-styles '(orderless basic))
+  (completion-category-overrides '((file (styles basic partial-completion)))))
+
+(use-package marginalia)
+(marginalia-mode)
+
+(use-package all-the-icons-completion)
+(all-the-icons-completion-mode)
+(add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
