@@ -28,9 +28,6 @@
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
-;; save emacs sessions
-(desktop-save-mode 1)
-
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -52,11 +49,15 @@
       (set-fontset-font t charset cn-font)))
   )
 
-(defun my/frame-behaviours (&optional frame)
+(defun my/frame-behaviors (&optional frame)
   (with-selected-frame (or frame (selected-frame))
     (my/set-font)
     ))
-(add-hook 'after-make-frame-functions 'my/frame-behaviours)
-(my/frame-behaviours)
+
+;; for server
+(add-hook 'server-after-make-frame-hook 'my/frame-behaviors)
+
+;; for normal start
+(my/frame-behaviors)
 
 (use-package magit)
