@@ -1,7 +1,2 @@
 .DS_Store
-tramp
-auto-save-list/
-elpa/
-eshell/
-transient/
-org-roam.db
+custom-vars.el
