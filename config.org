@@ -19,6 +19,10 @@
 (setq use-package-always-ensure t)
 #+end_src
 
+#+begin_src elisp
+(use-package no-littering)
+#+end_src
+
 * Basic Settings
 #+begin_src elisp
 ;; enable smooth scrolling experience
@@ -54,6 +58,7 @@
 
 ;; save-place
 (save-place-mode 1)
+(setq save-place-forget-unreadable-files nil)
 #+end_src
 
 * Org Basic
