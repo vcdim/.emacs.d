@@ -23,10 +23,8 @@
 ;; enable smooth scrolling experience
 (pixel-scroll-precision-mode)
 
-;; default behavior of <home> is the head of document
+;; default behavior of <home>/<end> is the head/end of document
 (global-set-key (kbd "<home>") 'beginning-of-line)
-
-;; default behavior of <end> is the end of document
 (global-set-key (kbd "<end>") 'end-of-line)
 
 ;; this is mostly for Windows
@@ -44,6 +42,17 @@
 
 ;; change the tab behavior
 (setq tab-always-indent 'complete)
+
+;; move the auto generated custom code to a file
+(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(load custom-file 'noerror 'nomessge)
+
+;; auto-revert
+(global-auto-revert-mode 1)
+(setq global-auto-revert-non-file-buffers t)
+
+;; save-place
+(save-place-mode 1)
 #+end_src
 
 * Org Basic
@@ -187,8 +196,7 @@
 (setq org-roam-dailies-directory "daily/")
 
 (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %?"
-	 :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+      '(("d" "default" entry "* %?" :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
 
 ;; global org-capture
 (defun my/org-capture ()
@@ -202,3 +210,35 @@
   (if (equal "capture" (frame-parameter nil 'name))
       (delete-frame)))
 #+end_src
+
+* citar
+#+begin_src elisp
+(use-package citar
+  :custom
+  (citar-bibliography '("~/Niuwa/03_Qun/common/gq.bib"))
+  :hook
+  (LaTeX-mode . citar-capf-setup)
+  (org-mode . citar-capf-setup)
+  (markdown-mode . citar-capf-setup))
+
+;; better looking
+(defvar citar-indicator-files-icons (citar-indicator-create
+   :symbol (all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1)
+   :function #'citar-has-files :padding "  " :tag "has:files"))
+(defvar citar-indicator-links-icons (citar-indicator-create
+   :symbol (all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01)
+   :function #'citar-has-links :padding "  " :tag "has:links"))
+(defvar citar-indicator-notes-icons (citar-indicator-create
+   :symbol (all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3)
+   :function #'citar-has-notes :padding "  " :tag "has:notes"))
+(defvar citar-indicator-cited-icons (citar-indicator-create
+   :symbol (all-the-icons-faicon "circle-o" :face 'all-the-icon-green)
+   :function #'citar-is-cited :padding "  " :tag "is:cited"))
+(setq citar-indicators
+      (list citar-indicator-files-icons citar-indicator-links-icons
+            citar-indicator-notes-icons citar-indicator-cited-icons))
+
+;; open pdf by default viewer
+(add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
+#+end_src
+
