@@ -10,6 +10,7 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+;; keep the .emacs.d folder clean
 ;; we need to have the variable before the setting!
 (setq no-littering-etc-directory (expand-file-name "~/.config/emacs/etc/"))
 (setq no-littering-var-directory (expand-file-name "~/.config/emacs/var/"))
@@ -39,7 +40,7 @@
 (setq tab-always-indent 'complete)
 
 ;; move the auto generated custom code to a file
-(setq custom-file (locate-user-emacs-file "custom-vars.el"))
+(setq custom-file (concat no-littering-var-directory "custom-vars.el"))
 (load custom-file 'noerror 'nomessge)
 
 ;; auto-revert
