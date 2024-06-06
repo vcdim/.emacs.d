@@ -114,3 +114,34 @@
 
 (use-package treemacs)
 (global-set-key (kbd "C-x t t") 'treemacs)
+
+(use-package org-roam
+  :bind
+  (("C-c n l" . org-roam-buffer-toggle)
+   ("C-c n f" . org-roam-node-find)
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n c" . org-roam-capture)
+   ("C-c n j" . org-roam-dailies-capture-today)
+   ("C-c n d" . org-roam-dailies-goto-today)
+   )
+  )
+(setq org-roam-directory "~/Niuwa/03_Qun/roam/")
+
+;; relative path to org-roam-directory
+(setq org-roam-dailies-directory "daily/")
+
+(setq org-roam-dailies-capture-templates
+      '(("d" "default" entry "* %?"
+	 :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+
+;; global org-capture
+(defun my/org-capture ()
+  (interactive)
+  (delete-other-windows)
+  (cl-letf (((symbol-function 'switch-to-buffer-other-window) #'switch-to-buffer))
+    (condition-case err (org-roam-dailies-capture-today)
+      (error (when (equal err '(error "Abort")) (delete-frame))))))
+
+(defadvice org-capture-finalize (after delete-capture-frame activate)
+  (if (equal "capture" (frame-parameter nil 'name))
+      (delete-frame)))

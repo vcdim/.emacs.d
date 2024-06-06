@@ -1,0 +1,15 @@
+* Default
+** .emacs.d
+ - path :: ~/.emacs.d
+** org
+ - path :: ~/Niuwa/03_Qun/org
+** roam
+ - path :: ~/Niuwa/03_Qun/roam
+** posts
+ - path :: ~/Niuwa/03_Qun/work/blog/content/posts
+** common
+ - path :: ~/Niuwa/03_Qun/common
+** custom-llm
+ - path :: ~/Documents/Chegg/custom-llm
+** .ssh
+ - path :: ~/.ssh
