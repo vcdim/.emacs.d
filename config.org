@@ -113,7 +113,7 @@
 (use-package markdown-mode)
 #+end_src
 
-* vertico
+* =vertico=
 #+begin_src elisp
 (use-package vertico)
 (vertico-mode)
@@ -128,13 +128,13 @@
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 #+end_src
 
-* corfu
+* =corfu=
 #+begin_src elisp
 (use-package corfu)
 (global-corfu-mode)
 #+end_src
 
-* orderless
+* =orderless=
 #+begin_src elisp
 (use-package orderless
   :custom
@@ -142,20 +142,20 @@
   (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
-* marginalia
+* =marginalia=
 #+begin_src elisp
 (use-package marginalia)
 (marginalia-mode)
 #+end_src
 
-* all-the-icons-completion
+* =all-the-icons-completion=
 #+begin_src elisp
 (use-package all-the-icons-completion)
 (all-the-icons-completion-mode)
 (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
 #+end_src
 
-* path, vterm, and multi-vterm
+* Path, =vterm=, and =multi-vterm=
 #+begin_src elisp
 (use-package exec-path-from-shell)
 (exec-path-from-shell-initialize)
@@ -167,7 +167,7 @@
 (use-package multi-vterm)
 #+end_src
 
-* ibuffer, diredfl
+* =ibuffer=, =diredfl=
 #+begin_src elisp
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-expert t)
@@ -176,13 +176,13 @@
 (setq diredfl-global-mode t)
 #+end_src
 
-* treemacs
+* =treemacs=
 #+begin_src elisp
 (use-package treemacs)
 (global-set-key (kbd "C-x t t") 'treemacs)
 #+end_src
 
-* org-roam
+* =org-roam=
 #+begin_src elisp
 (use-package org-roam
   :bind
@@ -215,7 +215,7 @@
       (delete-frame)))
 #+end_src
 
-* citar
+* =citar=
 #+begin_src elisp
 (use-package citar
   :custom
