@@ -163,6 +163,8 @@
 (use-package citar
   :custom
   (citar-bibliography '("~/Niuwa/03_Qun/common/gq.bib"))
+  (org-cite-insert-processor 'citar)
+  (org-cite-follow-processor 'citar)
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)
@@ -187,3 +189,8 @@
 
 ;; open pdf by default viewer
 (add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
+
+(use-package citar-org-roam
+  :after (citar org-roam)
+  :config (citar-org-roam-mode))
+(setq citar-org-roam-note-title-template "${title}\n#+author: ${author}\n")
