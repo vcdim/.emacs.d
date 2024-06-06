@@ -6,14 +6,18 @@
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
+;; avoid checking signature to avoid error. not a great practise.
 (setq package-check-signature nil)
+
 (require 'use-package)
 (setq use-package-always-ensure t)
 
 ;; keep the .emacs.d folder clean
-;; we need to have the variable before the setting!
 (setq no-littering-etc-directory (expand-file-name "~/.config/emacs/etc/"))
 (setq no-littering-var-directory (expand-file-name "~/.config/emacs/var/"))
+
+;; we need to have the variable BEFORE the setting!
 (use-package no-littering)
 
 ;; enable smooth scrolling experience
