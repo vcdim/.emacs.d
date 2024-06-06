@@ -36,10 +36,6 @@
 ;; use y and n, instead of yes and no
 (setopt use-short-answers t)
 
-;; put backup files into temp file
-(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
-(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
-
 ;; change the tab behavior
 (setq tab-always-indent 'complete)
 
@@ -54,6 +50,10 @@
 ;; save-place
 (save-place-mode 1)
 (setq save-place-forget-unreadable-files nil)
+
+;; move backup file (afile~) autosave file (#afile#) to tmp
+(setq backup-directory-alist `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
 ;; I like to use shift to select
 (setq org-support-shift-select t)
@@ -73,17 +73,11 @@
 	(cn-font (font-spec :name "Sarasa Mono SC")))
     (set-face-attribute 'default nil :font default-font)
     (dolist (charset '(kana han symbol cjk-misc bopomofo))
-      (set-fontset-font t charset cn-font)))
-  )
-
+      (set-fontset-font t charset cn-font))))
 (defun my/frame-behaviors (&optional frame)
-  (with-selected-frame (or frame (selected-frame))
-    (my/set-font)
-    ))
-
+  (with-selected-frame (or frame (selected-frame)) (my/set-font)))
 ;; for server
 (add-hook 'server-after-make-frame-hook 'my/frame-behaviors)
-
 ;; for normal start
 (my/frame-behaviors)
 
@@ -152,7 +146,8 @@
 (setq org-roam-dailies-directory "daily/")
 
 (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %?" :target (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+      '(("d" "default" entry "* %?" :target
+	 (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
 
 ;; global org-capture
 (defun my/org-capture ()
@@ -161,7 +156,6 @@
   (cl-letf (((symbol-function 'switch-to-buffer-other-window) #'switch-to-buffer))
     (condition-case err (org-roam-dailies-capture-today)
       (error (when (equal err '(error "Abort")) (delete-frame))))))
-
 (defadvice org-capture-finalize (after delete-capture-frame activate)
   (if (equal "capture" (frame-parameter nil 'name))
       (delete-frame)))
