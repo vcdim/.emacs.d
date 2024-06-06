@@ -10,9 +10,10 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package no-littering)
+;; we need to have the variable before the setting!
 (setq no-littering-etc-directory (expand-file-name "~/.config/emacs/etc/"))
 (setq no-littering-var-directory (expand-file-name "~/.config/emacs/var/"))
+(use-package no-littering)
 
 ;; enable smooth scrolling experience
 (pixel-scroll-precision-mode)

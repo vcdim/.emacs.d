@@ -20,9 +20,10 @@
 #+end_src
 
 #+begin_src elisp
-(use-package no-littering)
+;; we need to have the variable before the setting!
 (setq no-littering-etc-directory (expand-file-name "~/.config/emacs/etc/"))
 (setq no-littering-var-directory (expand-file-name "~/.config/emacs/var/"))
+(use-package no-littering)
 #+end_src
 
 * Basic Settings
