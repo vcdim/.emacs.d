@@ -61,12 +61,17 @@
 ;; This will fix the annoying auto formatting in the elisp code of org src
 (setq org-src-preserve-indentation t)
 
+
 ;; Add shortcut to org mode, e.g.
 ;; <el<TAB> will insert a elisp code block
 (require 'org-tempo)
 (add-to-list 'org-structure-template-alist '("el" . "src elisp"))
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
+
+(setq org-adapt-indentation t)
+(setq org-hide-leading-stars t)
+(setq org-hide-emphasis-markers t)
 
 (defun my/set-font ()
   (let ((default-font (font-spec :name "Iosevka" :size 15))
@@ -146,8 +151,8 @@
 (setq org-roam-dailies-directory "daily/")
 
 (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %?" :target
-	 (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+      '(("d" "default" entry "* %?"
+	 :target (file+datetree "journal.org" day))))
 
 ;; global org-capture
 (defun my/org-capture ()
