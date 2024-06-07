@@ -263,4 +263,3 @@
   (define-key elfeed-search-mode-map "=" elfeed-score-map))
 
 (use-package pdf-tools)
-(pdf-tools-install)
