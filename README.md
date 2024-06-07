@@ -1,4 +1,4 @@
-# Introduction
+# Installation Guide
 
 This is my personal `.emacs.d` configuration. To install:
 
