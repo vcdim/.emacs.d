@@ -8,7 +8,13 @@ This is my personal `.emacs.d` configuration. To install:
      --with-mailutils --with-no-frame-refocus --with-xwidgets \
      --with-imagemagick --with-poll --with-modern-black-variant-icon
    ```
-2. Clone the repository to home folder (`~`)
+   
+2. Clone the repository to home folder (`~`) by
+   ```sh
+   cd
+   git clone https://github.com/vcdim/.emacs.d.git
+   ```
+   
 3. Ensure there is an `emacs_work.plist` file in `~/Library/LaunchAgents/` folder with the following content:
    ```
    <plist version="1.0">
@@ -46,7 +52,7 @@ This is my personal `.emacs.d` configuration. To install:
      -e "(select-frame-set-input-focus (selected-frame))" \
      -s work
    ```
-   and a `Capture.app` with the following code
+   Also recommend to create a `Capture.app` with the following code
    ```sh
    /opt/homebrew/opt/emacs-plus@29/bin/emacsclient \
      -c -n \
