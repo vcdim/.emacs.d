@@ -261,5 +261,3 @@
   (elfeed-score-load-score-file (concat no-littering-var-directory "elfeed.score"))
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map))
-
-(use-package pdf-tools)
