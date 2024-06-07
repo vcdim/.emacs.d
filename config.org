@@ -256,3 +256,23 @@
 (setq citar-org-roam-note-title-template "${title}\n#+author: ${author}\n")
 #+end_src
 
+* =auctex=
+#+begin_src elisp
+(use-package tex
+  :ensure auctex)
+(setq-default TeX-master nil)
+(setq TeX-parse-self t)
+(setq TeX-engine 'xetex)
+(setq TeX-command-extra-options "-shell-escape")
+(setq TeX-electric-sub-and-superscript t)
+(setq TeX-auto-save t)
+(setq TeX-command-default "XeLaTeX")
+(setq TeX-save-query nil)
+(setq TeX-show-compilation nil)
+(setq TeX-source-correlate-start-server t)
+(add-to-list 'LaTeX-verbatim-environments "minted")
+(add-to-list 'TeX-command-list
+	     '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape -synctex=1 %t" TeX-run-TeX nil t))
+;; come back to tex file after compilation finishes
+(add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+#+end_src
