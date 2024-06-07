@@ -61,4 +61,4 @@ This is my personal `.emacs.d` configuration. To install:
 	 -s work
    ```
    
-6. Start the client will run the
+6. Run Emacs.app can start a emacs client. Run Capture.app can start a capture session.
