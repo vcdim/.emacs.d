@@ -328,3 +328,8 @@
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map))
 #+end_src
+
+#+begin_src elisp
+(use-package pdf-tools)
+(pdf-tools-install)
+#+end_src
