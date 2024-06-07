@@ -200,6 +200,7 @@
   :hook (prog-mode text-mode markdown-mode)
   :config
   (require 'smartparens-config))
+
 (bind-keys
  :map smartparens-mode-map
  ("C-M-a" . sp-beginning-of-sexp)
@@ -215,6 +216,7 @@
  ("C-S-f" . sp-forward-symbol)
  ("C-S-b" . sp-backward-symbol)
  ("C-<right>" . sp-forward-slurp-sexp)
+ 
  ("C-<left>"  . sp-backward-slurp-sexp)
  ("M-<right>" . sp-forward-barf-sexp)
  ("M-<left>"  . sp-backward-barf-sexp)
@@ -230,13 +232,9 @@
  ("M-[" . sp-backward-unwrap-sexp)
  ("M-]" . sp-unwrap-sexp)
  ("C-x C-t" . sp-transpose-hybrid-sexp)
- ("C-c ("  . wrap-with-parens)
- ("C-c ["  . wrap-with-brackets)
- ("C-c {"  . wrap-with-braces)
- ("C-c '"  . wrap-with-single-quotes)
- ("C-c \"" . wrap-with-double-quotes)
- ("C-c _"  . wrap-with-underscores)
- ("C-c `"  . wrap-with-back-quotes))
+ ("C-c ("  . sp-wrap-round)
+ ("C-c ["  . sp-wrap-square)
+ ("C-c {"  . sp-wrap-curly))
 
 (use-package tex
   :ensure auctex)
