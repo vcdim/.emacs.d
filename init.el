@@ -256,6 +256,9 @@
 ;; come back to tex file after compilation finishes
 (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 
+(use-package cdlatex)
+(add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
+
 (use-package elfeed)
 (setq elfeed-search-title-max-width 150)
 (defun concatenate-authors (authors-list)

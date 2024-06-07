@@ -302,7 +302,7 @@
  ("C-c `"  . wrap-with-back-quotes))
 #+end_src
 
-* =auctex=
+* =auctex= and =cdlatex=
 #+begin_src elisp
 (use-package tex
   :ensure auctex)
@@ -321,6 +321,9 @@
 	     '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape -synctex=1 %t" TeX-run-TeX nil t))
 ;; come back to tex file after compilation finishes
 (add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
+
+(use-package cdlatex)
+(add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
 #+end_src
 
 * =elfeed=
