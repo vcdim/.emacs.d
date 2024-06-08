@@ -202,7 +202,7 @@
 
 (use-package smartparens-mode
   :ensure smartparens
-  :hook (prog-mode text-mode markdown-mode)
+  :hook (prog-mode markdown-mode)
   :config
   (require 'smartparens-config))
 
@@ -221,7 +221,6 @@
  ("C-S-f" . sp-forward-symbol)
  ("C-S-b" . sp-backward-symbol)
  ("C-<right>" . sp-forward-slurp-sexp)
- 
  ("C-<left>"  . sp-backward-slurp-sexp)
  ("M-<right>" . sp-forward-barf-sexp)
  ("M-<left>"  . sp-backward-barf-sexp)
