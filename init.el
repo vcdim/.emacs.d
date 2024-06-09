@@ -61,7 +61,6 @@
 ;; This will fix the annoying auto formatting in the elisp code of org src
 (setq org-src-preserve-indentation t)
 
-
 ;; Add shortcut to org mode, e.g.
 ;; <el<TAB> will insert a elisp code block
 (require 'org-tempo)
@@ -72,6 +71,11 @@
 (setq org-adapt-indentation t)
 (setq org-hide-leading-stars t)
 (setq org-hide-emphasis-markers t)
+
+;; org-refile
+(setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+(setq org-refile-use-outline-path 'file) 
+(setq org-outline-path-complete-in-steps nil)
 
 (defun my/set-font ()
   (let ((default-font (font-spec :name "Iosevka" :size 15))
