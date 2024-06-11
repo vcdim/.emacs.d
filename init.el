@@ -55,6 +55,13 @@
 (setq backup-directory-alist `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms `((".*" ,temporary-file-directory t)))
 
+;; enable truncate lines and visual-line-mode (word-wrap) by default
+(set-default 'truncate-lines t)
+(global-set-key (kbd "C-z") 'toggle-truncate-lines)
+(global-visual-line-mode t)
+
+(setq column-number-mode t)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -68,7 +75,6 @@
 (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
 (add-to-list 'org-structure-template-alist '("py" . "src python"))
 
-(setq org-adapt-indentation t)
 (setq org-hide-leading-stars t)
 (setq org-hide-emphasis-markers t)
 
@@ -76,6 +82,7 @@
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
 (setq org-refile-use-outline-path 'file) 
 (setq org-outline-path-complete-in-steps nil)
+(setq org-tags-column -100)
 
 (defun my/set-font ()
   (let ((default-font (font-spec :name "Iosevka" :size 15))
@@ -313,3 +320,6 @@
   (elfeed-score-load-score-file (concat no-littering-var-directory "elfeed.score"))
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map))
+
+(use-package which-key)
+(which-key-mode)
