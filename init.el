@@ -272,7 +272,7 @@
 (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
 
 (use-package elfeed)
-(setq elfeed-search-title-max-width 150)
+(setq elfeed-search-title-max-width 100)
 (defun concatenate-authors (authors-list)
   (mapconcat (lambda (author) (plist-get author :name)) authors-list ", "))
 (defun my-search-print-fn (entry)
@@ -293,7 +293,7 @@
                        (number-to-string
                         (elfeed-score-scoring-get-score-from-entry entry))
                        10 :left))
-         (authors-width 135)
+         (authors-width 50)
          (authors-column (elfeed-format-column
                           entry-authors
                           (elfeed-clamp elfeed-search-title-min-width authors-width 100)
