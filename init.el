@@ -181,6 +181,8 @@
   (citar-bibliography '("~/Niuwa/03_Qun/common/gq.bib"))
   (org-cite-insert-processor 'citar)
   (org-cite-follow-processor 'citar)
+  ;; open pdf by default viewer
+  (add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
   :hook
   (LaTeX-mode . citar-capf-setup)
   (org-mode . citar-capf-setup)
@@ -202,9 +204,6 @@
 (setq citar-indicators
       (list citar-indicator-files-icons citar-indicator-links-icons
             citar-indicator-notes-icons citar-indicator-cited-icons))
-
-;; open pdf by default viewer
-(add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
 
 (use-package citar-org-roam
   :after (citar org-roam)
