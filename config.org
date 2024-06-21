@@ -396,3 +396,11 @@
 (use-package which-key)
 (which-key-mode)
 #+end_src
+
+* doom-modeline
+#+begin_src elisp
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode))
+(setq doom-modeline-battery t)
+(setq doom-modeline-time t)
+#+end_src

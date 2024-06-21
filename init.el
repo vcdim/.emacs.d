@@ -322,3 +322,8 @@
 
 (use-package which-key)
 (which-key-mode)
+
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode))
+(setq doom-modeline-battery t)
+(setq doom-modeline-time t)
