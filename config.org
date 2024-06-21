@@ -119,17 +119,18 @@
 (my/frame-behaviors)
 #+end_src
 
-* =magit=
+* Version Control
 #+begin_src elisp
 (use-package magit)
 #+end_src
 
-* =markdown-mode=
+* Markdown
 #+begin_src elisp
 (use-package markdown-mode)
 #+end_src
 
-* =vertico=
+* Completion
+** =vertico=
 #+begin_src elisp
 (use-package vertico)
 (vertico-mode)
@@ -144,13 +145,13 @@
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
 #+end_src
 
-* =corfu=
+** =corfu=
 #+begin_src elisp
 (use-package corfu)
 (global-corfu-mode)
 #+end_src
 
-* =orderless=
+** =orderless=
 #+begin_src elisp
 (use-package orderless
   :custom
@@ -158,13 +159,13 @@
   (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 
-* =marginalia=
+** =marginalia=
 #+begin_src elisp
 (use-package marginalia)
 (marginalia-mode)
 #+end_src
 
-* =all-the-icons-completion=
+** =all-the-icons-completion=
 #+begin_src elisp
 (use-package all-the-icons-completion)
 (all-the-icons-completion-mode)
