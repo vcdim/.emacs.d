@@ -329,7 +329,7 @@
 (setq TeX-save-query nil)
 (setq TeX-show-compilation nil)
 (setq TeX-source-correlate-start-server t)
-(add-to-list 'LaTeX-verbatim-environments "minted")
+(setq LaTeX-verbatim-environments-local '("minted"))
 (add-to-list 'TeX-command-list
 	     '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape -synctex=1 %t" TeX-run-TeX nil t))
 ;; come back to tex file after compilation finishes
