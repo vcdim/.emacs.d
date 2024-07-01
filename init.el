@@ -84,19 +84,6 @@
 (setq org-outline-path-complete-in-steps nil)
 (setq org-tags-column -100)
 
-;; (defun my/set-font ()
-;;   (let ((default-font (font-spec :name "Iosevka" :size 15))
-;; 	(cn-font (font-spec :name "Sarasa Mono SC")))
-;;     (set-face-attribute 'default nil :font default-font)
-;;     (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;       (set-fontset-font t charset cn-font))))
-;; (defun my/frame-behaviors (&optional frame)
-;;   (with-selected-frame (or frame (selected-frame)) (my/set-font)))
-;; ;; for server
-;; (add-hook 'server-after-make-frame-hook 'my/frame-behaviors)
-;; ;; for normal start
-;; (my/frame-behaviors)
-
 (use-package cnfonts
   :init
   (setq cnfonts-directory (expand-file-name "~/.config/emacs/var/cnfonts/"))
@@ -140,6 +127,10 @@
 (use-package marginalia)
 (marginalia-mode)
 
+(use-package all-the-icons-completion)
+(all-the-icons-completion-mode)
+(add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
+
 (use-package exec-path-from-shell)
 (exec-path-from-shell-initialize)
 
@@ -155,15 +146,8 @@
 (use-package diredfl)
 (setq diredfl-global-mode t)
 
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-
-(use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+(use-package treemacs)
+(global-set-key (kbd "C-x t t") 'treemacs)
 
 (use-package org-roam
   :bind
@@ -224,34 +208,10 @@
       (list citar-indicator-files-icons citar-indicator-links-icons
             citar-indicator-notes-icons citar-indicator-cited-icons))
 
-(use-package citar
-  :custom
-  (citar-bibliography '("~/Niuwa/03_Qun/common/gq.bib"))
-  (org-cite-insert-processor 'citar)
-  (org-cite-follow-processor 'citar)
-  ;; open pdf by default viewer
-  (add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup)
-  (markdown-mode . citar-capf-setup))
-
-;; better looking
-(defvar citar-indicator-files-icons (citar-indicator-create
-   :symbol (all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1)
-   :function #'citar-has-files :padding "  " :tag "has:files"))
-(defvar citar-indicator-links-icons (citar-indicator-create
-   :symbol (all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01)
-   :function #'citar-has-links :padding "  " :tag "has:links"))
-(defvar citar-indicator-notes-icons (citar-indicator-create
-   :symbol (all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3)
-   :function #'citar-has-notes :padding "  " :tag "has:notes"))
-(defvar citar-indicator-cited-icons (citar-indicator-create
-   :symbol (all-the-icons-faicon "circle-o" :face 'all-the-icon-green)
-   :function #'citar-is-cited :padding "  " :tag "is:cited"))
-(setq citar-indicators
-      (list citar-indicator-files-icons citar-indicator-links-icons
-            citar-indicator-notes-icons citar-indicator-cited-icons))
+(use-package citar-org-roam
+  :after (citar org-roam)
+  :config (citar-org-roam-mode))
+(setq citar-org-roam-note-title-template "${title}\n#+author: ${author}\n")
 
 (use-package smartparens-mode
   :ensure smartparens
@@ -293,45 +253,26 @@
  ("C-c ["  . sp-wrap-square)
  ("C-c {"  . sp-wrap-curly))
 
-(use-package smartparens-mode
-  :ensure smartparens
-  :hook (prog-mode markdown-mode)
-  :config
-  (require 'smartparens-config))
+(use-package tex
+  :ensure auctex)
+(setq-default TeX-master nil)
+(setq TeX-parse-self t)
+(setq TeX-engine 'xetex)
+(setq TeX-command-extra-options "-shell-escape")
+(setq TeX-electric-sub-and-superscript t)
+(setq TeX-auto-save t)
+(setq TeX-command-default "XeLaTeX")
+(setq TeX-save-query nil)
+(setq TeX-show-compilation nil)
+(setq TeX-source-correlate-start-server t)
+(setq LaTeX-verbatim-environments-local '("minted"))
+(add-to-list 'TeX-command-list
+	     '("XeLaTeX" "%`xelatex%(mode)%' -shell-escape -synctex=1 %t" TeX-run-TeX nil t))
+;; come back to tex file after compilation finishes
+(add-hook 'TeX-after-compilation-finished-functions #'TeX-revert-document-buffer)
 
-(bind-keys
- :map smartparens-mode-map
- ("C-M-a" . sp-beginning-of-sexp)
- ("C-M-e" . sp-end-of-sexp)
- ("C-<down>" . sp-down-sexp)
- ("C-<up>"   . sp-up-sexp)
- ("M-<down>" . sp-backward-down-sexp)
- ("M-<up>"   . sp-backward-up-sexp)
- ("C-M-f" . sp-forward-sexp)
- ("C-M-b" . sp-backward-sexp)
- ("C-M-n" . sp-next-sexp)
- ("C-M-p" . sp-previous-sexp)
- ("C-S-f" . sp-forward-symbol)
- ("C-S-b" . sp-backward-symbol)
- ("C-<right>" . sp-forward-slurp-sexp)
- ("C-<left>"  . sp-backward-slurp-sexp)
- ("M-<right>" . sp-forward-barf-sexp)
- ("M-<left>"  . sp-backward-barf-sexp)
- ("C-M-t" . sp-transpose-sexp)
- ("C-M-k" . sp-kill-sexp)
- ("C-k"   . sp-kill-hybrid-sexp)
- ("M-k"   . sp-backward-kill-sexp)
- ("C-M-w" . sp-copy-sexp)
- ("C-M-d" . delete-sexp)
- ("M-<backspace>" . backward-kill-word)
- ("C-<backspace>" . sp-backward-kill-word)
- ([remap sp-backward-kill-word] . backward-kill-word)
- ("M-[" . sp-backward-unwrap-sexp)
- ("M-]" . sp-unwrap-sexp)
- ("C-x C-t" . sp-transpose-hybrid-sexp)
- ("C-c ("  . sp-wrap-round)
- ("C-c ["  . sp-wrap-square)
- ("C-c {"  . sp-wrap-curly))
+(use-package cdlatex)
+(add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
 
 (use-package elfeed)
 (setq elfeed-search-title-max-width 100)
@@ -382,51 +323,10 @@
   (elfeed-score-enable)
   (define-key elfeed-search-mode-map "=" elfeed-score-map))
 
-(use-package elfeed)
-(setq elfeed-search-title-max-width 100)
-(defun concatenate-authors (authors-list)
-  (mapconcat (lambda (author) (plist-get author :name)) authors-list ", "))
-(defun my-search-print-fn (entry)
-  (let* ((date (elfeed-search-format-date (elfeed-entry-date entry)))
-         (title (or (elfeed-meta entry :title) (elfeed-entry-title entry) ""))
-         (title-faces (elfeed-search--faces (elfeed-entry-tags entry)))
-         (feed (elfeed-entry-feed entry))
-         (feed-title (when feed (or (elfeed-meta feed :title) (elfeed-feed-title feed))))
-         (entry-authors (concatenate-authors (elfeed-meta entry :authors)))
-         (tags (mapcar #'symbol-name (elfeed-entry-tags entry)))
-         (tags-str (mapconcat (lambda (s) (propertize s 'face 'elfeed-search-tag-face)) tags ","))
-         (title-width (- (window-width) 10 elfeed-search-trailing-width))
-         (title-column (elfeed-format-column
-                        title (elfeed-clamp elfeed-search-title-min-width
-					    title-width elfeed-search-title-max-width)
-                        :left))
-         (entry-score (elfeed-format-column
-                       (number-to-string
-                        (elfeed-score-scoring-get-score-from-entry entry))
-                       10 :left))
-         (authors-width 50)
-         (authors-column (elfeed-format-column
-                          entry-authors
-                          (elfeed-clamp elfeed-search-title-min-width authors-width 100)
-					:left)))
-	 (insert (propertize date 'face 'elfeed-search-date-face) " ")
-	 (insert (propertize title-column 'face title-faces 'kbd-help title) " ")
-	 (insert (propertize authors-column 'face 'elfeed-search-date-face 'kbd-help entry-authors) " ")
-	 (insert entry-score " ")
-	 (when entry-authors (insert (propertize feed-title 'face 'elfeed-search-feed-face) " "))
-	 (when tags (insert "(" tags-str ")"))
-    )
-  )
-(setq elfeed-search-print-entry-function #'my-search-print-fn)
-(run-at-time nil (* 8 60 60) #'elfeed-update)
-(use-package elfeed-org
-  :config
-  (setq rmh-elfeed-org-files (list (concat no-littering-var-directory "elfeed.org")))
-  (elfeed-org)
-  )
-(use-package elfeed-score
-  :after elfeed
-  :config
-  (elfeed-score-load-score-file (concat no-littering-var-directory "elfeed.score"))
-  (elfeed-score-enable)
-  (define-key elfeed-search-mode-map "=" elfeed-score-map))
+(use-package which-key)
+(which-key-mode)
+
+(use-package doom-modeline
+  :hook (after-init . doom-modeline-mode))
+(setq doom-modeline-battery t)
+(setq doom-modeline-time t)

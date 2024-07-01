@@ -105,21 +105,6 @@
 | abcdedfghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ |
 |-------------------------------------------------------|
 #+begin_src elisp
-;; (defun my/set-font ()
-;;   (let ((default-font (font-spec :name "Iosevka" :size 15))
-;; 	(cn-font (font-spec :name "Sarasa Mono SC")))
-;;     (set-face-attribute 'default nil :font default-font)
-;;     (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;       (set-fontset-font t charset cn-font))))
-;; (defun my/frame-behaviors (&optional frame)
-;;   (with-selected-frame (or frame (selected-frame)) (my/set-font)))
-;; ;; for server
-;; (add-hook 'server-after-make-frame-hook 'my/frame-behaviors)
-;; ;; for normal start
-;; (my/frame-behaviors)
-#+end_src
-
-#+begin_src elisp
 (use-package cnfonts
   :init
   (setq cnfonts-directory (expand-file-name "~/.config/emacs/var/cnfonts/"))
