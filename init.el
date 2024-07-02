@@ -332,3 +332,5 @@
   :hook (after-init . doom-modeline-mode))
 (setq doom-modeline-battery t)
 (setq doom-modeline-time t)
+
+(use-package consult)

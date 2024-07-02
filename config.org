@@ -409,3 +409,8 @@
 (setq doom-modeline-battery t)
 (setq doom-modeline-time t)
 #+end_src
+
+* consult
+#+begin_src elisp
+(use-package consult)
+#+end_src
