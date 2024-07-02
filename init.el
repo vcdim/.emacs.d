@@ -99,33 +99,9 @@
   :config
   (cnfonts-mode 1)
   (setq cnfonts-use-face-font-rescale t))
+
 (define-key cnfonts-mode-map (kbd "C--") #'cnfonts-decrease-fontsize)
 (define-key cnfonts-mode-map (kbd "C-=") #'cnfonts-increase-fontsize)
-(defun blaenk/set-char-widths (alist)
-  (while (char-table-parent char-width-table)
-    (setq char-width-table (char-table-parent char-width-table)))
-  (dolist (pair alist)
-    (let ((width (car pair))
-          (chars (cdr pair))
-          (table (make-char-table nil)))
-      (dolist (char chars)
-        (set-char-table-range table char width))
-      (optimize-char-table table)
-      (set-char-table-parent table char-width-table)
-      (setq char-width-table table))))
-
-(blaenk/set-char-widths
- `((1 . (,(string-to-char "“")
-         ,(string-to-char "”")
-         ,(string-to-char "…")
-         ))))
-(setq use-default-font-for-symbols nil)
-(defun my/set-chinese-puncture-fonts (fontsize-list)
-  (set-fontset-font "fontset-default" '(#x2010 . #x2027) "SimSong" nil 'prepend)
-  )
-(add-hook 'cnfonts-set-font-finish-hook 'my/set-chinese-puncture-fonts)
-(my/set-chinese-puncture-fonts "")
-;;
 
 (use-package magit)
 
