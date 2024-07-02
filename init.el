@@ -120,6 +120,12 @@
          ,(string-to-char "…")
          ))))
 (setq use-default-font-for-symbols nil)
+(defun my/set-chinese-puncture-fonts (fontsize-list)
+  (set-fontset-font "fontset-default" '(#x2010 . #x2027) "SimSong" nil 'prepend)
+  )
+(add-hook 'cnfonts-set-font-finish-hook 'my/set-chinese-puncture-fonts)
+(my/set-chinese-puncture-fonts "")
+;;
 
 (use-package magit)
 
