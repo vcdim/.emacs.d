@@ -64,6 +64,8 @@
 
 (display-battery-mode)
 
+(scroll-bar-mode -1)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 

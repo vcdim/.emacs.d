@@ -74,6 +74,8 @@
 (setq column-number-mode t)
 
 (display-battery-mode)
+
+(scroll-bar-mode -1)
 #+end_src
 
 * Org Basic
