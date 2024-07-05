@@ -62,6 +62,8 @@
 
 (setq column-number-mode t)
 
+(display-battery-mode)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -342,8 +344,6 @@
         doom-themes-enable-italic t)
   (load-theme 'doom-one t)
   (doom-themes-visual-bell-config)
-  ;; or for treemacs users
-  (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+  (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
-  ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
