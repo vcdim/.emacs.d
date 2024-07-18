@@ -66,6 +66,8 @@
 
 (scroll-bar-mode -1)
 
+(savehist-mode 1)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
@@ -172,8 +174,20 @@
 (setq org-roam-dailies-directory "daily/")
 
 (setq org-roam-dailies-capture-templates
-      '(("d" "default" entry "* %?"
-	 :target (file+datetree "journal.org" day))))
+      '(
+	("d" "default" entry "* %?"
+	 :target (file+datetree "journal.org" day)
+	 :jump-to-captured t
+	 )
+	("i" "idea" entry "* 感想\n%U\n%?"
+	 :target (file+datetree "journal.org" day)
+	 :jump-to-captured t
+	 )
+	("t" "todo" entry "* TODO %?"
+	 :target (file+datetree "journal.org" day)
+	 :jump-to-captured t
+	 )
+	))
 
 ;; global org-capture
 (defun my/org-capture ()
@@ -344,7 +358,7 @@
   :config
   (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
-  (load-theme 'doom-one t)
+  (load-theme 'doom-miramare t)
   (doom-themes-visual-bell-config)
   (setq doom-themes-treemacs-theme "doom-atom")
   (doom-themes-treemacs-config)
