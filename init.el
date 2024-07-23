@@ -141,13 +141,14 @@
 (add-hook 'marginalia-mode-hook #'all-the-icons-completion-marginalia-setup)
 
 (use-package exec-path-from-shell)
-(exec-path-from-shell-initialize)
 
-(use-package vterm
-  :init
-  (setq vterm-always-compile-module t))
-
-(use-package multi-vterm)
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize)
+  (use-package vterm
+    :init
+    (setq vterm-always-compile-module t))
+  (use-package multi-vterm)  
+  )
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-expert t)

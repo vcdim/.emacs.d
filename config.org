@@ -197,13 +197,15 @@
 * Path, =vterm=, and =multi-vterm=
 #+begin_src elisp
 (use-package exec-path-from-shell)
-(exec-path-from-shell-initialize)
 
-(use-package vterm
-  :init
-  (setq vterm-always-compile-module t))
+(when (memq window-system '(mac ns x))
+  (exec-path-from-shell-initialize)
+  (use-package vterm
+    :init
+    (setq vterm-always-compile-module t))
+  (use-package multi-vterm)  
+  )
 
-(use-package multi-vterm)
 #+end_src
 
 * =ibuffer=, =diredfl=
