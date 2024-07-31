@@ -78,6 +78,9 @@
 (scroll-bar-mode -1)
 
 (savehist-mode 1)
+
+;; system default encoding
+(prefer-coding-system 'utf-8)
 #+end_src
 
 * Org Basic

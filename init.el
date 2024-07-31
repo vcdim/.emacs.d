@@ -68,6 +68,9 @@
 
 (savehist-mode 1)
 
+;; system default encoding
+(prefer-coding-system 'utf-8)
+
 ;; I like to use shift to select
 (setq org-support-shift-select t)
 
