@@ -93,6 +93,12 @@
 (setq org-outline-path-complete-in-steps nil)
 (setq org-tags-column -100)
 
+(defun insert-zero-width-space () (interactive) (insert-char #x200b))
+(defun my-latex-filter-zws (text backend info)
+  (when (org-export-derived-backend-p backend 'latex)
+    (replace-regexp-in-string "\x200B" "{}" text)))
+(global-set-key (kbd "C-*") 'insert-zero-width-space)
+
 (use-package cnfonts
   :init
   (setq cnfonts-directory (expand-file-name "~/.config/emacs/var/cnfonts/"))
@@ -146,12 +152,14 @@
 (use-package exec-path-from-shell)
 
 (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize)
   (use-package vterm
     :init
     (setq vterm-always-compile-module t))
   (use-package multi-vterm)  
   )
+
+(when (daemonp)
+  (exec-path-from-shell-initialize))
 
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 (setq ibuffer-expert t)
