@@ -307,6 +307,9 @@
 (use-package cdlatex)
 (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
 
+(setq org-latex-create-formula-image-program 'dvisvgm)
+(plist-put org-format-latex-options :scale 1.5)
+
 (use-package elfeed)
 (setq elfeed-search-title-max-width 100)
 (defun concatenate-authors (authors-list)

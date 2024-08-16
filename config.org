@@ -383,6 +383,9 @@
 
 (use-package cdlatex)
 (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
+
+(setq org-latex-create-formula-image-program 'dvisvgm)
+(plist-put org-format-latex-options :scale 1.5)
 #+end_src
 
 * =elfeed=
