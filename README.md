@@ -53,20 +53,43 @@ This is my personal `.emacs.d` configuration. To install:
 5. Make an Automator app (e.g. `Emacs.app`) with the following code
 
    ```sh
-   /opt/homebrew/opt/emacs-plus@29/bin/emacsclient 
+   /opt/homebrew/opt/emacs-plus/bin/emacsclient \
      -c -n -q -u \
      -e "(select-frame-set-input-focus (selected-frame))" \
      -s work
    ```
 
-   Also recommend to create a `Capture.app` with the following code
+6. Run `Emacs.app` can start a emacs client. 
+
+7. (Optional) Install `all-the-icons` fonts inside emacs
+```sh
+M-x all-the-icons-install-fonts
+```
+This will install the following fonts
+```sh
+all-the-icons.ttf
+file-icons.ttf
+fontawesome.ttf
+material-design-icons.ttf
+octicons.ttf
+weathericons.ttf
+```
+into `~/Library/Fonts/` folder. Similarly, install `nerd-icons` font by running
+```sh
+M-x nerd-icons-install-fonts
+```
+This will install `NFM.ttf` into `~/Library/Fonts/` folder.
+
+Optional fonts: Sarasa Mono SC, Iosevka Nerd Font Mono, HanaMinB.
+
+8. (Optional) Create a `Capture.app` with the following code
 
    ```sh
-   /opt/homebrew/opt/emacs-plus@29/bin/emacsclient \
+   /opt/homebrew/opt/emacs-plus/bin/emacsclient \
      -c -n \
      -F '(quote (name . "capture"))' \
      -e "(select-frame-set-input-focus (selected-frame))" "(my/org-capture)" \
      -s work
    ```
 
-6. Run `Emacs.app` can start a emacs client. Run `Capture.app` can start a capture session.
+
