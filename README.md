@@ -20,8 +20,8 @@ This is my personal `.emacs.d` configuration. To install:
    brew install libvterm
    ```
 
-4.  Install fonts inside emacs
-	```sh
-	M-x all-the-icons-install-fonts
-	M-x nerd-font-install-fonts
-	```
+4. Install fonts inside emacs
+   ```sh
+   M-x all-the-icons-install-fonts
+   M-x nerd-font-install-fonts
+   ```
