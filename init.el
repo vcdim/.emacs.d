@@ -352,12 +352,6 @@
   (setq rmh-elfeed-org-files (list (concat no-littering-var-directory "elfeed.org")))
   (elfeed-org)
   )
-(use-package elfeed-score
-  :after elfeed
-  :config
-  (elfeed-score-load-score-file (concat no-littering-var-directory "elfeed.score"))
-  (elfeed-score-enable)
-  (define-key elfeed-search-mode-map "=" elfeed-score-map))
 
 (use-package which-key)
 (which-key-mode)
@@ -375,8 +369,6 @@
         doom-themes-enable-italic t)
   (load-theme 'doom-miramare t)
   (doom-themes-visual-bell-config)
-  (setq doom-themes-treemacs-theme "doom-atom")
-  (doom-themes-treemacs-config)
   (doom-themes-org-config))
 
 (use-package multiple-cursors)
