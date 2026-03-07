@@ -130,21 +130,40 @@
 | abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ |
 |------------------------------------------------------|
 #+begin_src elisp
+(defun my/monospace-font-p (family)
+  "Use buffer to test width length"
+  (condition-case nil
+      (with-temp-buffer
+        (let ((face `(:family ,family :height 200)))
+          (insert (propertize "iiii" 'face face))
+          (let ((w1 (string-pixel-width
+                     (propertize "iiii" 'face face)))
+                (w2 (string-pixel-width
+                     (propertize "MMMM" 'face face))))
+            (and (> w1 0) (= w1 w2)))))
+    (error nil)))
+
+(defun my/nerd-mono-fonts ()
+  "Local nerd mono fonts"
+  (cl-remove-duplicates
+   (cl-loop for f in (font-family-list)
+            when (and (string-match-p "Nerd Font" f)
+		      (not (string-match-p "Symbols" f))
+                      (my/monospace-font-p f))
+            collect f)
+   :test #'string-equal))
+
 (use-package cnfonts
   :init
   (setq cnfonts-directory (expand-file-name "~/.config/emacs/var/cnfonts/"))
-  :custom
-  (cnfonts-personal-fontnames
-   '(("MesloLGS NF" "JetBrainsMono Nerd Font Mono"  "IosevkaTerm Nerd Font Mono"
-      "Iosevka Nerd Font Mono" "CodeNewRoman Nerd Font Mono"
-      "VictorMono Nerd Font" "CMUTypewriter Nerd Font"
-      "ComicShannsMono Nerd Font" "BlexMono Nerd Font"
-      "FantasqueSansM Nerd Font")
-     ("Songti SC" "SimSong" "Adobe Fangsong Std" "Sarasa Mono SC")
-     ()))
   :config
   (cnfonts-mode 1)
-  (setq cnfonts-use-face-font-rescale t))
+  (setq cnfonts-use-face-font-rescale t)
+  (setq cnfonts-use-face-font-rescale t
+        cnfonts-personal-fontnames
+        (list (my/nerd-mono-fonts)
+              '("Songti SC" "SimSong" "Adobe Fangsong Std" "Sarasa Mono SC")
+              '())))
 
 (define-key cnfonts-mode-map (kbd "C--") #'cnfonts-decrease-fontsize)
 (define-key cnfonts-mode-map (kbd "C-=") #'cnfonts-increase-fontsize)
@@ -206,16 +225,49 @@
 * Path, =vterm=, and =multi-vterm=
 #+begin_src elisp
 (use-package exec-path-from-shell)
+(exec-path-from-shell-initialize)
 
 (when (memq window-system '(mac ns x))
   (use-package vterm
     :init
-    (setq vterm-always-compile-module t))
-  (use-package multi-vterm)  
+    (setq vterm-always-compile-module t)
+    :bind
+    (:map vterm-mode-map("M-j" . my/toggle-vterm-below))
+    )
+  (use-package multi-vterm)
   )
 
-(when (daemonp)
-  (exec-path-from-shell-initialize))
+(defvar my/vterm-window nil
+  "The vterm side window.")
+
+(defun my/toggle-vterm-below ()
+  "Toggle a vterm window at the bottom of the frame."
+  (interactive)
+  (if (and my/vterm-window (window-live-p my/vterm-window))
+      ;; Close it
+      (progn
+        (delete-window my/vterm-window)
+        (setq my/vterm-window nil))
+    ;; Open it
+    (let ((vterm-buf (get-buffer "*vterm*")))
+      (setq my/vterm-window (split-window-below -15))
+      (select-window my/vterm-window)
+      (if vterm-buf
+          (switch-to-buffer vterm-buf)
+        (vterm))
+      ;; Prevent other buffers from taking over this window
+      (set-window-dedicated-p my/vterm-window t))))
+
+(defun my/vterm-exit-cleanup (buf _msg)
+  "Close the vterm window and kill the buffer when the shell exits."
+  (let ((win (get-buffer-window buf)))
+    (when win (delete-window win)))
+  (kill-buffer buf))
+
+(with-eval-after-load 'vterm
+  (setq vterm-exit-function #'my/vterm-exit-cleanup))
+
+(global-set-key (kbd "M-j") 'my/toggle-vterm-below)
 #+end_src
 
 * =ibuffer=, =diredfl=
@@ -479,4 +531,13 @@
 (define-key global-map (kbd "C-c r") 'vr/replace)
 (define-key global-map (kbd "C-c q") 'vr/query-replace)
 (define-key global-map (kbd "C-c m") 'vr/mc-mark)
+#+end_src
+
+* claude code ide
+#+begin_src elisp
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu)
+  :config
+  (claude-code-ide-emacs-tools-setup))
 #+end_src
