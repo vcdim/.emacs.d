@@ -1,3 +1,4 @@
 .DS_Store
 elpa
 /eln-cache/
+/elgrep-data.el

@@ -128,11 +128,10 @@
   :config
   (cnfonts-mode 1)
   (setq cnfonts-use-face-font-rescale t)
-  (setq cnfonts-use-face-font-rescale t
-        cnfonts-personal-fontnames
+  (setq cnfonts-personal-fontnames
         (list (my/nerd-mono-fonts)
               '("Songti SC" "SimSong" "Adobe Fangsong Std" "Sarasa Mono SC")
-              '())))
+              '("Simsun-ExtB"))))
 
 (define-key cnfonts-mode-map (kbd "C--") #'cnfonts-decrease-fontsize)
 (define-key cnfonts-mode-map (kbd "C-=") #'cnfonts-increase-fontsize)
@@ -222,77 +221,6 @@
 (use-package treemacs)
 (global-set-key (kbd "C-x t t") 'treemacs)
 
-(use-package org-roam
-  :bind
-  (("C-c n l" . org-roam-buffer-toggle)
-   ("C-c n f" . org-roam-node-find)
-   ("C-c n i" . org-roam-node-insert)
-   ("C-c n c" . org-roam-capture)
-   ("C-c n j" . org-roam-dailies-capture-today)
-   ("C-c n d" . org-roam-dailies-goto-today)
-   )
-  )
-(setq org-roam-directory "~/Niuwa/03_Qun/roam/")
-
-;; relative path to org-roam-directory
-(setq org-roam-dailies-directory "daily/")
-
-(setq org-roam-dailies-capture-templates
-      '(
-	("d" "default" entry "* %?"
-	 :target (file+datetree "journal.org" day)
-	 :jump-to-captured t
-	 )
-	("i" "idea" entry "* 感想\n%U\n%?"
-	 :target (file+datetree "journal.org" day)
-	 :jump-to-captured t
-	 )
-	("t" "todo" entry "* TODO %?"
-	 :target (file+datetree "journal.org" day)
-	 :jump-to-captured t
-	 )
-	))
-
-;; global org-capture
-(defun my/org-capture ()
-  (interactive)
-  (delete-other-windows)
-  (cl-letf (((symbol-function 'switch-to-buffer-other-window) #'switch-to-buffer))
-    (condition-case err (org-roam-dailies-capture-today)
-      (error (when (equal err '(error "Abort")) (delete-frame))))))
-(defadvice org-capture-finalize (after delete-capture-frame activate)
-  (if (equal "capture" (frame-parameter nil 'name))
-      (delete-frame)))
-
-(use-package citar
-  :custom
-  (citar-bibliography '("~/Niuwa/03_Qun/common/gq.bib"))
-  (org-cite-insert-processor 'citar)
-  (org-cite-follow-processor 'citar)
-  ;; open pdf by default viewer
-  (add-to-list 'citar-file-open-functions '("pdf" . citar-file-open-external))
-  :hook
-  (LaTeX-mode . citar-capf-setup)
-  (org-mode . citar-capf-setup)
-  (markdown-mode . citar-capf-setup))
-
-;; better looking
-(defvar citar-indicator-files-icons (citar-indicator-create
-   :symbol (all-the-icons-faicon "file-o" :face 'all-the-icons-green :v-adjust -0.1)
-   :function #'citar-has-files :padding "  " :tag "has:files"))
-(defvar citar-indicator-links-icons (citar-indicator-create
-   :symbol (all-the-icons-octicon "link" :face 'all-the-icons-orange :v-adjust 0.01)
-   :function #'citar-has-links :padding "  " :tag "has:links"))
-(defvar citar-indicator-notes-icons (citar-indicator-create
-   :symbol (all-the-icons-material "speaker_notes" :face 'all-the-icons-blue :v-adjust -0.3)
-   :function #'citar-has-notes :padding "  " :tag "has:notes"))
-(defvar citar-indicator-cited-icons (citar-indicator-create
-   :symbol (all-the-icons-faicon "circle-o" :face 'all-the-icon-green)
-   :function #'citar-is-cited :padding "  " :tag "is:cited"))
-(setq citar-indicators
-      (list citar-indicator-files-icons citar-indicator-links-icons
-            citar-indicator-notes-icons citar-indicator-cited-icons))
-
 (use-package citar-org-roam
   :after (citar org-roam)
   :config (citar-org-roam-mode))
@@ -362,56 +290,8 @@
 (setq org-latex-create-formula-image-program 'dvisvgm)
 (plist-put org-format-latex-options :scale 1.5)
 
-(use-package elfeed)
-(setq elfeed-search-title-max-width 100)
-(defun concatenate-authors (authors-list)
-  (mapconcat (lambda (author) (plist-get author :name)) authors-list ", "))
-(defun my-search-print-fn (entry)
-  (let* ((date (elfeed-search-format-date (elfeed-entry-date entry)))
-         (title (or (elfeed-meta entry :title) (elfeed-entry-title entry) ""))
-         (title-faces (elfeed-search--faces (elfeed-entry-tags entry)))
-         (feed (elfeed-entry-feed entry))
-         (feed-title (when feed (or (elfeed-meta feed :title) (elfeed-feed-title feed))))
-         (entry-authors (concatenate-authors (elfeed-meta entry :authors)))
-         (tags (mapcar #'symbol-name (elfeed-entry-tags entry)))
-         (tags-str (mapconcat (lambda (s) (propertize s 'face 'elfeed-search-tag-face)) tags ","))
-         (title-width (- (window-width) 10 elfeed-search-trailing-width))
-         (title-column (elfeed-format-column
-                        title (elfeed-clamp elfeed-search-title-min-width
-					    title-width elfeed-search-title-max-width)
-                        :left))
-         (entry-score (elfeed-format-column
-                       (number-to-string
-                        (elfeed-score-scoring-get-score-from-entry entry))
-                       10 :left))
-         (authors-width 50)
-         (authors-column (elfeed-format-column
-                          entry-authors
-                          (elfeed-clamp elfeed-search-title-min-width authors-width 100)
-					:left)))
-	 (insert (propertize date 'face 'elfeed-search-date-face) " ")
-	 (insert (propertize title-column 'face title-faces 'kbd-help title) " ")
-	 (insert (propertize authors-column 'face 'elfeed-search-date-face 'kbd-help entry-authors) " ")
-	 (insert entry-score " ")
-	 (when entry-authors (insert (propertize feed-title 'face 'elfeed-search-feed-face) " "))
-	 (when tags (insert "(" tags-str ")"))
-    )
-  )
-(setq elfeed-search-print-entry-function #'my-search-print-fn)
-(run-at-time nil (* 8 60 60) #'elfeed-update)
-(use-package elfeed-org
-  :config
-  (setq rmh-elfeed-org-files (list (concat no-littering-var-directory "elfeed.org")))
-  (elfeed-org)
-  )
-
 (use-package which-key)
 (which-key-mode)
-
-(use-package doom-modeline
-  :hook (after-init . doom-modeline-mode))
-(setq doom-modeline-battery t)
-(setq doom-modeline-time t)
 
 (use-package consult)
 
@@ -434,8 +314,17 @@
 (define-key global-map (kbd "C-c q") 'vr/query-replace)
 (define-key global-map (kbd "C-c m") 'vr/mc-mark)
 
-(use-package claude-code-ide
-  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
-  :bind ("C-c C-'" . claude-code-ide-menu)
+(use-package simple-modeline
+  :hook (after-init . simple-modeline-mode))
+
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown")
+  :bind (:map markdown-mode-map
+         ("C-c C-e" . markdown-do)))
+
+(use-package linum-relative
   :config
-  (claude-code-ide-emacs-tools-setup))
+  (setq linum-relative-backend 'display-line-numbers-mode)
+  )
